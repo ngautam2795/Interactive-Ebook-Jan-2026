@@ -102,7 +102,7 @@
 # Testing Data - Main Agent and testing sub agent both should log testing data below this section
 #====================================================================================================
 
-user_problem_statement: "Test the interactive ebook application with homepage, reader view, table of contents, content uploader, and mobile responsiveness features"
+user_problem_statement: "Test the enhanced interactive ebook application with NEW features: 3-step Content Creator Modal (Content → Image → Preview), AI Image Generation with 4 models, enhanced Interactive Reader, and mobile responsiveness for new features"
 
 frontend:
   - task: "Homepage Landing Page"
@@ -119,6 +119,54 @@ frontend:
         - working: true
         - agent: "testing"
         - comment: "✅ PASSED - Homepage loads perfectly with LearnScape branding, Explore Demo and Upload Content buttons visible, hero section displays photosynthesis image with 3 pulsing hotspot indicators, features section and available chapters section all working correctly"
+
+  - task: "3-Step Content Creator Modal"
+    implemented: true
+    working: "NA"
+    file: "/app/frontend/src/components/creator/ContentCreator.jsx"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+        - working: "NA"
+        - agent: "testing"
+        - comment: "NEW FEATURE - Need to test 3-step wizard: Step 1 (Content input with Try Sample and Paste Text tabs), Step 2 (AI Image Generation), Step 3 (Preview). Verify 'Load Sample: Volcanoes' button, title/content input, and 'Continue to Image Generation' functionality"
+
+  - task: "AI Image Generation (Step 2)"
+    implemented: true
+    working: "NA"
+    file: "/app/frontend/src/components/creator/ContentCreator.jsx"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+        - working: "NA"
+        - agent: "testing"
+        - comment: "NEW FEATURE - Need to test AI image generation with 4 models: Nano Banana Pro (fast/good), Flux Kontext Pro (medium/high), Flux Kontext Max (slow/premium), GPT-Image-1 (medium/high). Verify auto-generated prompt, aspect ratio dropdown, Generate Image button, and loading state (15-30 seconds)"
+
+  - task: "Enhanced Interactive Reader"
+    implemented: true
+    working: "NA"
+    file: "/app/frontend/src/components/ebook/EbookReader.jsx"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+        - working: "NA"
+        - agent: "testing"
+        - comment: "ENHANCED FEATURE - Need to verify hotspots are visible on photosynthesis image, hotspot tooltip modals work, bottom navigation (Previous, Contents, Next), and Table of Contents with chapter listings"
+
+  - task: "Mobile View for New Features"
+    implemented: true
+    working: "NA"
+    file: "/app/frontend/src/App.js"
+    stuck_count: 0
+    priority: "medium"
+    needs_retesting: true
+    status_history:
+        - working: "NA"
+        - agent: "testing"
+        - comment: "NEW MOBILE TESTING - Need to test content creator modal responsiveness at 390x844 viewport, verify reader view is touch-friendly for new features"
 
   - task: "Reader View Interactive Page"
     implemented: true
@@ -164,36 +212,6 @@ frontend:
         - working: true
         - agent: "testing"
         - comment: "✅ PASSED - Table of Contents slide-out panel works perfectly, displays all subject chapters (Science, History, Math), shows progress tracking (25% completed), chapter navigation functional"
-
-  - task: "Content Uploader"
-    implemented: true
-    working: true
-    file: "/app/frontend/src/components/upload/ContentUploader.jsx"
-    stuck_count: 0
-    priority: "high"
-    needs_retesting: false
-    status_history:
-        - working: "NA"
-        - agent: "testing"
-        - comment: "Initial testing - need to verify upload modal, textarea, sample content loading, processing functionality"
-        - working: true
-        - agent: "testing"
-        - comment: "✅ PASSED - Content upload modal opens correctly, textarea for educational content visible and functional, 'Try Sample' tab works with volcano content, sample content loads successfully, processing button appears when text is entered"
-
-  - task: "Mobile Responsiveness"
-    implemented: true
-    working: true
-    file: "/app/frontend/src/App.js"
-    stuck_count: 0
-    priority: "medium"
-    needs_retesting: false
-    status_history:
-        - working: "NA"
-        - agent: "testing"
-        - comment: "Initial testing - need to verify mobile viewport (390x844) functionality, touch-friendly navigation"
-        - working: true
-        - agent: "testing"
-        - comment: "✅ PASSED - Mobile responsiveness excellent on 390x844 viewport, all buttons are touch-friendly size (>40px height), LearnScape branding visible, reader view loads correctly, hotspots are tappable, content uploader modal works on mobile. Minor: Contents button not visible in mobile reader view but overall mobile experience is excellent"
 
 metadata:
   created_by: "testing_agent"
