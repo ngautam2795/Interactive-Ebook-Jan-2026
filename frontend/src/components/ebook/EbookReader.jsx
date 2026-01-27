@@ -166,6 +166,13 @@ export const EbookReader = ({ onBack, chapters = [], initialChapterIndex = 0 }) 
                 onHotspotActivate={handleHotspotActivate}
               />
             )}
+            {!currentTopic && (
+              <div className="min-h-[calc(100vh-140px)] pt-20 pb-24 px-4 flex items-center justify-center">
+                <div className="text-center">
+                  <p className="text-muted-foreground">No content available</p>
+                </div>
+              </div>
+            )}
           </motion.div>
         </AnimatePresence>
       </motion.div>
@@ -182,7 +189,7 @@ export const EbookReader = ({ onBack, chapters = [], initialChapterIndex = 0 }) 
       />
 
       {/* Swipe Hint */}
-      {shouldShowHint && currentPageIndex === 0 && (
+      {shouldShowHint && currentPageIndex === 0 && allTopics.length > 1 && (
         <SwipeHint direction="left" />
       )}
 
@@ -190,7 +197,7 @@ export const EbookReader = ({ onBack, chapters = [], initialChapterIndex = 0 }) 
       <TableOfContents
         isOpen={tocOpen}
         onClose={() => setTocOpen(false)}
-        chapters={sampleChapters}
+        chapters={chapters}
         currentTopicId={currentTopic?.id}
         onSelectTopic={handleSelectTopic}
         completedTopics={completedTopics}
