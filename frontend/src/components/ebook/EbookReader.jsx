@@ -205,8 +205,10 @@ export const EbookReader = ({ onBack, chapters = [], initialChapterIndex = 0, on
               <InteractivePage
                 topic={currentTopic}
                 chapterTitle={currentTopic.chapterTitle}
+                chapterId={currentTopic.chapterId}
                 subject={currentTopic.subject}
                 onHotspotActivate={handleHotspotActivate}
+                onEdit={handleEditTopic}
               />
             )}
             {!currentTopic && (
