@@ -21,6 +21,10 @@ mongo_url = os.environ['MONGO_URL']
 client = AsyncIOMotorClient(mongo_url)
 db = client[os.environ['DB_NAME']]
 
+# Kei.ai API configuration
+KEI_API_KEY = os.environ.get('KEI_API_KEY', '')
+KEI_API_BASE = "https://api.kie.ai/api/v1"
+
 # Create the main app without a prefix
 app = FastAPI()
 
@@ -38,6 +42,81 @@ class StatusCheck(BaseModel):
 
 class StatusCheckCreate(BaseModel):
     client_name: str
+
+# Image Generation Models
+class ImageGenerationRequest(BaseModel):
+    prompt: str
+    model: str = "nano-banana-pro"  # nano-banana-pro, flux-kontext-pro, flux-kontext-max, 4o-image
+    aspect_ratio: str = "16:9"
+    output_format: str = "png"
+
+class ImageGenerationResponse(BaseModel):
+    task_id: str
+    status: str
+    message: str
+
+class TaskStatusResponse(BaseModel):
+    task_id: str
+    status: str
+    image_url: Optional[str] = None
+    message: str
+
+# Content Models
+class Hotspot(BaseModel):
+    id: str = Field(default_factory=lambda: str(uuid.uuid4()))
+    x: float  # percentage position
+    y: float
+    label: str
+    icon: str = "sparkles"
+    color: str = "primary"
+    title: str
+    description: str
+    fun_fact: Optional[str] = None
+
+class Annotation(BaseModel):
+    id: str = Field(default_factory=lambda: str(uuid.uuid4()))
+    type: str  # "arrow", "box", "text"
+    x: float
+    y: float
+    width: Optional[float] = None
+    height: Optional[float] = None
+    rotation: Optional[float] = 0
+    text: Optional[str] = None
+    color: str = "primary"
+    end_x: Optional[float] = None  # For arrows
+    end_y: Optional[float] = None
+
+class Topic(BaseModel):
+    id: str = Field(default_factory=lambda: str(uuid.uuid4()))
+    title: str
+    subtitle: Optional[str] = None
+    content: str
+    illustration: Optional[str] = None
+    illustration_prompt: Optional[str] = None
+    hotspots: List[Hotspot] = []
+    annotations: List[Annotation] = []
+
+class Chapter(BaseModel):
+    id: str = Field(default_factory=lambda: str(uuid.uuid4()))
+    title: str
+    subject: str
+    description: Optional[str] = None
+    topics: List[Topic] = []
+    created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+
+class ChapterCreate(BaseModel):
+    title: str
+    subject: str
+    description: Optional[str] = None
+    content: str  # Raw content to be parsed into topics
+
+class TopicUpdate(BaseModel):
+    title: Optional[str] = None
+    subtitle: Optional[str] = None
+    content: Optional[str] = None
+    illustration: Optional[str] = None
+    hotspots: Optional[List[Hotspot]] = None
+    annotations: Optional[List[Annotation]] = None
 
 # Add your routes to the router instead of directly to app
 @api_router.get("/")
