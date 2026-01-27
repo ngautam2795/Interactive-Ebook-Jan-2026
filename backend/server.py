@@ -210,43 +210,6 @@ async def generate_image(request: ImageGenerationRequest):
     except Exception as e:
         logger.error(f"Image generation error: {str(e)}")
         raise HTTPException(status_code=500, detail=str(e))
-                    "aspectRatio": request.aspect_ratio,
-                    "outputFormat": request.output_format
-                }
-            elif request.model == "4o-image":
-                endpoint = f"{KEI_API_BASE}/4o-image/generate"
-                payload = {
-                    "prompt": request.prompt,
-                    "size": request.aspect_ratio,
-                    "nVariants": 1
-                }
-            else:
-                raise HTTPException(status_code=400, detail=f"Unsupported model: {request.model}")
-            
-            logger.info(f"Generating image with model {request.model}: {request.prompt[:100]}...")
-            response = await client.post(endpoint, json=payload, headers=headers)
-            
-            if response.status_code != 200:
-                logger.error(f"Kei.ai API error: {response.text}")
-                raise HTTPException(status_code=response.status_code, detail=f"Image generation failed: {response.text}")
-            
-            result = response.json()
-            
-            if result.get("code") == 200:
-                task_id = result.get("data", {}).get("taskId", "")
-                return ImageGenerationResponse(
-                    task_id=task_id,
-                    status="processing",
-                    message="Image generation started"
-                )
-            else:
-                raise HTTPException(status_code=500, detail=f"API error: {result.get('msg', 'Unknown error')}")
-                
-    except httpx.TimeoutException:
-        raise HTTPException(status_code=504, detail="Request timeout")
-    except Exception as e:
-        logger.error(f"Image generation error: {str(e)}")
-        raise HTTPException(status_code=500, detail=str(e))
 
 @api_router.get("/image-status/{task_id}", response_model=TaskStatusResponse)
 async def get_image_status(task_id: str):
