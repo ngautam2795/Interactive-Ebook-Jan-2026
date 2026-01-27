@@ -22,11 +22,7 @@ export const EbookReader = ({ onBack }) => {
   const dragThreshold = 100;
 
   // Hide swipe hint after first interaction
-  useEffect(() => {
-    if (completedTopics.length > 0) {
-      setShowSwipeHint(false);
-    }
-  }, [completedTopics]);
+  const shouldShowHint = completedTopics.length === 0 && showSwipeHint;
 
   // Mark topic as completed when visiting
   useEffect(() => {
@@ -165,7 +161,7 @@ export const EbookReader = ({ onBack }) => {
       />
 
       {/* Swipe Hint */}
-      {showSwipeHint && currentPageIndex === 0 && (
+      {shouldShowHint && currentPageIndex === 0 && (
         <SwipeHint direction="left" />
       )}
 
