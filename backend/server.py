@@ -229,8 +229,8 @@ async def get_image_status(task_id: str):
     
     try:
         async with httpx.AsyncClient(timeout=30.0) as http_client:
-            # Use the task status endpoint
-            endpoint = f"{KEI_API_BASE}/jobs/taskStatus"
+            # Use the recordInfo endpoint for task status
+            endpoint = f"{KEI_API_BASE}/jobs/recordInfo"
             response = await http_client.get(endpoint, params={"taskId": task_id}, headers=headers)
             
             logger.info(f"Status check response: {response.status_code} - {response.text[:500]}")
@@ -241,21 +241,35 @@ async def get_image_status(task_id: str):
             result = response.json()
             data = result.get("data", {})
             
-            status = data.get("status", "unknown")
-            # Check multiple possible locations for the image URL
-            image_url = (
-                data.get("imageUrl") or 
-                data.get("image_url") or 
-                data.get("output", {}).get("imageUrl") or
-                data.get("output", {}).get("image_url") or
-                (data.get("images", [{}])[0].get("url") if data.get("images") else None)
-            )
+            state = data.get("state", "unknown")
+            result_json = data.get("resultJson", "{}")
+            
+            # Parse resultJson to get image URLs
+            image_url = None
+            if state == "success" and result_json:
+                try:
+                    import json
+                    result_data = json.loads(result_json) if isinstance(result_json, str) else result_json
+                    result_urls = result_data.get("resultUrls", [])
+                    if result_urls:
+                        image_url = result_urls[0]
+                except:
+                    pass
+            
+            # Map state to simpler status
+            status_mapping = {
+                "waiting": "processing",
+                "queuing": "processing",
+                "generating": "processing",
+                "success": "completed",
+                "fail": "failed"
+            }
             
             return TaskStatusResponse(
                 task_id=task_id,
-                status=status,
+                status=status_mapping.get(state, state),
                 image_url=image_url,
-                message=f"Task status: {status}"
+                message=f"Task state: {state}" + (f" - {data.get('failMsg', '')}" if state == "fail" else "")
             )
             
     except Exception as e:
