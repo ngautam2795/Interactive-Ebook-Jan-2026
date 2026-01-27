@@ -242,11 +242,23 @@ export const EbookReader = ({ onBack, chapters = [], initialChapterIndex = 0, on
       <TableOfContents
         isOpen={tocOpen}
         onClose={() => setTocOpen(false)}
-        chapters={chapters}
+        chapters={localChapters}
         currentTopicId={currentTopic?.id}
         onSelectTopic={handleSelectTopic}
         completedTopics={completedTopics}
       />
+
+      {/* Topic Editor */}
+      <AnimatePresence>
+        {editingTopic && editingChapterId && (
+          <TopicEditor
+            topic={editingTopic}
+            chapterId={editingChapterId}
+            onSave={handleSaveEdit}
+            onClose={handleCloseEdit}
+          />
+        )}
+      </AnimatePresence>
     </div>
   );
 };
