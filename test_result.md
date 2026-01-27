@@ -219,7 +219,11 @@ metadata:
   test_sequence: 1
 
 test_plan:
-  current_focus: []
+  current_focus:
+    - "3-Step Content Creator Modal"
+    - "AI Image Generation (Step 2)"
+    - "Enhanced Interactive Reader"
+    - "Mobile View for New Features"
   stuck_tasks: []
   test_all: false
   test_priority: "high_first"
@@ -229,3 +233,5 @@ agent_communication:
     - message: "Starting comprehensive testing of interactive ebook application. Will test all major features including homepage, reader view, hotspots, TOC, uploader, and mobile responsiveness."
     - agent: "testing"
     - message: "TESTING COMPLETED SUCCESSFULLY - All major features are working correctly. Homepage loads with proper branding and navigation, reader view displays interactive content with functional hotspots, table of contents shows proper chapter organization and progress tracking, content uploader allows text input and sample content loading, mobile responsiveness is excellent with touch-friendly interface. Application is ready for production use."
+    - agent: "testing"
+    - message: "STARTING NEW ENHANCED FEATURES TESTING - Focusing on NEW 3-step Content Creator Modal with AI image generation, enhanced Interactive Reader features, and mobile responsiveness for new features. Testing at https://storyscape-29.preview.emergentagent.com"
