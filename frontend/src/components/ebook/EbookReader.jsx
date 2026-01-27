@@ -1,21 +1,42 @@
-import React, { useState, useEffect, useCallback } from 'react';
-import { motion, AnimatePresence, useMotionValue, useTransform } from 'framer-motion';
+import React, { useState, useEffect, useCallback, useMemo } from 'react';
+import { motion, AnimatePresence, useMotionValue } from 'framer-motion';
 import { Header } from '@/components/layout/Header';
 import { Navigation, SwipeHint } from '@/components/layout/Navigation';
 import { InteractivePage } from '@/components/interactive/InteractivePage';
 import { TableOfContents } from './TableOfContents';
-import { sampleChapters, getAllTopics } from '@/data/sampleContent';
 
-export const EbookReader = ({ onBack }) => {
-  const allTopics = getAllTopics();
-  const [currentPageIndex, setCurrentPageIndex] = useState(0);
+export const EbookReader = ({ onBack, chapters = [], initialChapterIndex = 0 }) => {
+  // Flatten all topics from all chapters
+  const allTopics = useMemo(() => {
+    return chapters.flatMap(chapter => 
+      (chapter.topics || []).map(topic => ({
+        ...topic,
+        chapterId: chapter.id,
+        chapterTitle: chapter.title,
+        subject: chapter.subject
+      }))
+    );
+  }, [chapters]);
+
+  // Calculate initial page index based on chapter
+  const getInitialPageIndex = useCallback(() => {
+    if (initialChapterIndex === 0) return 0;
+    
+    let pageIndex = 0;
+    for (let i = 0; i < initialChapterIndex && i < chapters.length; i++) {
+      pageIndex += (chapters[i].topics || []).length;
+    }
+    return pageIndex;
+  }, [chapters, initialChapterIndex]);
+
+  const [currentPageIndex, setCurrentPageIndex] = useState(getInitialPageIndex);
   const [completedTopics, setCompletedTopics] = useState([]);
   const [tocOpen, setTocOpen] = useState(false);
   const [direction, setDirection] = useState(0);
   const [showSwipeHint, setShowSwipeHint] = useState(true);
 
   const currentTopic = allTopics[currentPageIndex];
-  const progress = ((currentPageIndex + 1) / allTopics.length) * 100;
+  const progress = allTopics.length > 0 ? ((currentPageIndex + 1) / allTopics.length) * 100 : 0;
 
   // Handle swipe gestures
   const x = useMotionValue(0);
