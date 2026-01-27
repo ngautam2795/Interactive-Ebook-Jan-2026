@@ -106,15 +106,48 @@ export const EbookReader = ({ onBack, chapters = [], initialChapterIndex = 0, on
     console.log('Hotspot activated:', hotspotId);
   };
 
+  // Handle edit mode
+  const handleEditTopic = useCallback((topic, chapterId) => {
+    setEditingTopic(topic);
+    setEditingChapterId(chapterId);
+  }, []);
+
+  const handleSaveEdit = useCallback((updatedTopic) => {
+    // Update local state
+    setLocalChapters(prev => prev.map(chapter => {
+      if (chapter.id === editingChapterId) {
+        return {
+          ...chapter,
+          topics: (chapter.topics || []).map(t => 
+            t.id === updatedTopic.id ? updatedTopic : t
+          )
+        };
+      }
+      return chapter;
+    }));
+    
+    // Notify parent if callback provided
+    onChaptersUpdate?.(localChapters);
+    
+    setEditingTopic(null);
+    setEditingChapterId(null);
+  }, [editingChapterId, localChapters, onChaptersUpdate]);
+
+  const handleCloseEdit = useCallback(() => {
+    setEditingTopic(null);
+    setEditingChapterId(null);
+  }, []);
+
   // Keyboard navigation
   useEffect(() => {
     const handleKeyDown = (e) => {
+      if (editingTopic) return; // Disable when editing
       if (e.key === 'ArrowRight') goNext();
       if (e.key === 'ArrowLeft') goPrevious();
     };
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [goNext, goPrevious]);
+  }, [goNext, goPrevious, editingTopic]);
 
   // Page transition variants
   const pageVariants = {
