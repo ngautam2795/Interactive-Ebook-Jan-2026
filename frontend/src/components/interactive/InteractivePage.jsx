@@ -133,8 +133,13 @@ export const InteractivePage = ({
             {/* Overlay gradient for better hotspot visibility */}
             <div className="absolute inset-0 bg-gradient-to-t from-black/10 via-transparent to-transparent pointer-events-none" />
 
+            {/* Annotations */}
+            {annotations.map((annotation) => (
+              <AnnotationRenderer key={annotation.id} annotation={annotation} />
+            ))}
+
             {/* Hotspots */}
-            {topic.hotspots.map((hotspot, idx) => (
+            {hotspots.map((hotspot, idx) => (
               <Hotspot
                 key={hotspot.id}
                 {...hotspot}
@@ -145,16 +150,38 @@ export const InteractivePage = ({
             ))}
           </div>
 
+          {/* Edit Button */}
+          {onEdit && chapterId && (
+            <motion.div
+              className="absolute top-4 right-4"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 0.5 }}
+            >
+              <Button
+                variant="glass"
+                size="sm"
+                onClick={() => onEdit(topic, chapterId)}
+                className="gap-2 bg-white/80 hover:bg-white"
+              >
+                <Edit3 className="w-4 h-4" />
+                Edit
+              </Button>
+            </motion.div>
+          )}
+
           {/* Tap hint */}
-          <motion.div
-            className="absolute bottom-4 left-1/2 -translate-x-1/2 flex items-center gap-2 px-4 py-2 rounded-full glass text-sm font-medium text-foreground"
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 1 }}
-          >
-            <span className="w-2 h-2 rounded-full bg-primary animate-pulse" />
-            Tap the markers to learn more
-          </motion.div>
+          {hotspots.length > 0 && (
+            <motion.div
+              className="absolute bottom-4 left-1/2 -translate-x-1/2 flex items-center gap-2 px-4 py-2 rounded-full glass text-sm font-medium text-foreground"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 1 }}
+            >
+              <span className="w-2 h-2 rounded-full bg-primary animate-pulse" />
+              Tap the markers to learn more
+            </motion.div>
+          )}
         </motion.div>
 
         {/* Content Description */}
