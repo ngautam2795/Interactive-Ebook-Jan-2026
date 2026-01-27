@@ -319,130 +319,286 @@ async def get_available_models():
         ]
     }
 
-# ============== Chapter & Content Endpoints ==============
+# ============== Chapter & Content Endpoints (Supabase) ==============
 
-@api_router.post("/chapters", response_model=Chapter)
+@api_router.post("/chapters")
 async def create_chapter(chapter_data: ChapterCreate):
-    """Create a new chapter from raw content"""
+    """Create a new chapter from raw content and save to Supabase"""
     
-    # Parse content into topics
-    topics = parse_content_to_topics(chapter_data.content)
-    
-    chapter = Chapter(
-        title=chapter_data.title,
-        subject=chapter_data.subject,
-        description=chapter_data.description,
-        topics=topics
-    )
-    
-    # Save to database
-    doc = chapter.model_dump()
-    doc['created_at'] = doc['created_at'].isoformat()
-    await db.chapters.insert_one(doc)
-    
-    return chapter
+    try:
+        sb = get_supabase()
+        
+        # Parse content into topics
+        parsed_topics = parse_content_to_topics(chapter_data.content)
+        
+        chapter_id = str(uuid.uuid4())
+        
+        # Insert chapter
+        chapter_doc = {
+            "id": chapter_id,
+            "title": chapter_data.title,
+            "subject": chapter_data.subject,
+            "description": chapter_data.description or f"Interactive chapter about {chapter_data.title}"
+        }
+        
+        result = sb.table("chapters").insert(chapter_doc).execute()
+        
+        if not result.data:
+            raise HTTPException(status_code=500, detail="Failed to create chapter")
+        
+        # Insert topics
+        topics_with_ids = []
+        for idx, topic in enumerate(parsed_topics):
+            topic_id = str(uuid.uuid4())
+            topic_doc = {
+                "id": topic_id,
+                "chapter_id": chapter_id,
+                "title": topic.title,
+                "subtitle": topic.subtitle,
+                "content": topic.content,
+                "illustration": topic.illustration,
+                "illustration_prompt": topic.illustration_prompt,
+                "order_index": idx
+            }
+            
+            topic_result = sb.table("topics").insert(topic_doc).execute()
+            
+            if topic_result.data:
+                # Insert hotspots for this topic
+                for hotspot in topic.hotspots:
+                    hotspot_doc = {
+                        "id": str(uuid.uuid4()),
+                        "topic_id": topic_id,
+                        "x": hotspot.x,
+                        "y": hotspot.y,
+                        "label": hotspot.label,
+                        "icon": hotspot.icon,
+                        "color": hotspot.color,
+                        "title": hotspot.title,
+                        "description": hotspot.description,
+                        "fun_fact": hotspot.fun_fact
+                    }
+                    sb.table("hotspots").insert(hotspot_doc).execute()
+                
+                topics_with_ids.append({
+                    "id": topic_id,
+                    "title": topic.title,
+                    "subtitle": topic.subtitle,
+                    "content": topic.content,
+                    "illustration": topic.illustration,
+                    "hotspots": [h.model_dump() for h in topic.hotspots],
+                    "annotations": []
+                })
+        
+        return {
+            "id": chapter_id,
+            "title": chapter_data.title,
+            "subject": chapter_data.subject,
+            "description": chapter_data.description,
+            "topics": topics_with_ids,
+            "created_at": datetime.now(timezone.utc).isoformat()
+        }
+        
+    except Exception as e:
+        logger.error(f"Error creating chapter: {str(e)}")
+        raise HTTPException(status_code=500, detail=str(e))
 
-@api_router.get("/chapters", response_model=List[Chapter])
+@api_router.get("/chapters")
 async def get_chapters():
-    """Get all chapters"""
-    chapters = await db.chapters.find({}, {"_id": 0}).to_list(100)
-    for ch in chapters:
-        if isinstance(ch.get('created_at'), str):
-            ch['created_at'] = datetime.fromisoformat(ch['created_at'])
-    return chapters
+    """Get all chapters from Supabase"""
+    try:
+        sb = get_supabase()
+        
+        # Get all chapters
+        chapters_result = sb.table("chapters").select("*").order("created_at", desc=True).execute()
+        
+        chapters = []
+        for ch in chapters_result.data or []:
+            # Get topics for this chapter
+            topics_result = sb.table("topics").select("*").eq("chapter_id", ch["id"]).order("order_index").execute()
+            
+            topics = []
+            for topic in topics_result.data or []:
+                # Get hotspots for this topic
+                hotspots_result = sb.table("hotspots").select("*").eq("topic_id", topic["id"]).execute()
+                
+                # Get annotations for this topic
+                annotations_result = sb.table("annotations").select("*").eq("topic_id", topic["id"]).execute()
+                
+                topics.append({
+                    **topic,
+                    "hotspots": hotspots_result.data or [],
+                    "annotations": annotations_result.data or []
+                })
+            
+            chapters.append({
+                **ch,
+                "topics": topics
+            })
+        
+        return chapters
+        
+    except Exception as e:
+        logger.error(f"Error getting chapters: {str(e)}")
+        raise HTTPException(status_code=500, detail=str(e))
 
-@api_router.get("/chapters/{chapter_id}", response_model=Chapter)
+@api_router.get("/chapters/{chapter_id}")
 async def get_chapter(chapter_id: str):
-    """Get a specific chapter"""
-    chapter = await db.chapters.find_one({"id": chapter_id}, {"_id": 0})
-    if not chapter:
-        raise HTTPException(status_code=404, detail="Chapter not found")
-    if isinstance(chapter.get('created_at'), str):
-        chapter['created_at'] = datetime.fromisoformat(chapter['created_at'])
-    return chapter
+    """Get a specific chapter from Supabase"""
+    try:
+        sb = get_supabase()
+        
+        # Get chapter
+        chapter_result = sb.table("chapters").select("*").eq("id", chapter_id).single().execute()
+        
+        if not chapter_result.data:
+            raise HTTPException(status_code=404, detail="Chapter not found")
+        
+        ch = chapter_result.data
+        
+        # Get topics
+        topics_result = sb.table("topics").select("*").eq("chapter_id", chapter_id).order("order_index").execute()
+        
+        topics = []
+        for topic in topics_result.data or []:
+            hotspots_result = sb.table("hotspots").select("*").eq("topic_id", topic["id"]).execute()
+            annotations_result = sb.table("annotations").select("*").eq("topic_id", topic["id"]).execute()
+            
+            topics.append({
+                **topic,
+                "hotspots": hotspots_result.data or [],
+                "annotations": annotations_result.data or []
+            })
+        
+        return {
+            **ch,
+            "topics": topics
+        }
+        
+    except Exception as e:
+        logger.error(f"Error getting chapter: {str(e)}")
+        raise HTTPException(status_code=500, detail=str(e))
 
 @api_router.put("/chapters/{chapter_id}/topics/{topic_id}")
 async def update_topic(chapter_id: str, topic_id: str, topic_update: TopicUpdate):
-    """Update a specific topic within a chapter"""
-    
-    chapter = await db.chapters.find_one({"id": chapter_id})
-    if not chapter:
-        raise HTTPException(status_code=404, detail="Chapter not found")
-    
-    # Find and update the topic
-    topics = chapter.get("topics", [])
-    topic_found = False
-    
-    for i, topic in enumerate(topics):
-        if topic.get("id") == topic_id:
-            update_data = topic_update.model_dump(exclude_unset=True)
-            topics[i] = {**topic, **update_data}
-            topic_found = True
-            break
-    
-    if not topic_found:
-        raise HTTPException(status_code=404, detail="Topic not found")
-    
-    await db.chapters.update_one(
-        {"id": chapter_id},
-        {"$set": {"topics": topics}}
-    )
-    
-    return {"message": "Topic updated successfully", "topic": topics[i]}
+    """Update a specific topic in Supabase"""
+    try:
+        sb = get_supabase()
+        
+        update_data = topic_update.model_dump(exclude_unset=True)
+        
+        # Handle hotspots separately if provided
+        hotspots_data = update_data.pop("hotspots", None)
+        annotations_data = update_data.pop("annotations", None)
+        
+        if update_data:
+            update_data["updated_at"] = datetime.now(timezone.utc).isoformat()
+            sb.table("topics").update(update_data).eq("id", topic_id).execute()
+        
+        # Update hotspots if provided
+        if hotspots_data is not None:
+            # Delete existing hotspots
+            sb.table("hotspots").delete().eq("topic_id", topic_id).execute()
+            
+            # Insert new hotspots
+            for hotspot in hotspots_data:
+                hotspot_doc = {
+                    "id": hotspot.get("id", str(uuid.uuid4())),
+                    "topic_id": topic_id,
+                    **{k: v for k, v in hotspot.items() if k != "id"}
+                }
+                sb.table("hotspots").insert(hotspot_doc).execute()
+        
+        # Update annotations if provided
+        if annotations_data is not None:
+            sb.table("annotations").delete().eq("topic_id", topic_id).execute()
+            
+            for annotation in annotations_data:
+                annotation_doc = {
+                    "id": annotation.get("id", str(uuid.uuid4())),
+                    "topic_id": topic_id,
+                    **{k: v for k, v in annotation.items() if k != "id"}
+                }
+                sb.table("annotations").insert(annotation_doc).execute()
+        
+        return {"message": "Topic updated successfully"}
+        
+    except Exception as e:
+        logger.error(f"Error updating topic: {str(e)}")
+        raise HTTPException(status_code=500, detail=str(e))
 
 @api_router.post("/chapters/{chapter_id}/topics/{topic_id}/hotspots")
 async def add_hotspot(chapter_id: str, topic_id: str, hotspot: Hotspot):
-    """Add a hotspot to a topic"""
-    
-    chapter = await db.chapters.find_one({"id": chapter_id})
-    if not chapter:
-        raise HTTPException(status_code=404, detail="Chapter not found")
-    
-    topics = chapter.get("topics", [])
-    for i, topic in enumerate(topics):
-        if topic.get("id") == topic_id:
-            hotspots = topic.get("hotspots", [])
-            hotspots.append(hotspot.model_dump())
-            topics[i]["hotspots"] = hotspots
-            break
-    
-    await db.chapters.update_one(
-        {"id": chapter_id},
-        {"$set": {"topics": topics}}
-    )
-    
-    return {"message": "Hotspot added", "hotspot": hotspot}
+    """Add a hotspot to a topic in Supabase"""
+    try:
+        sb = get_supabase()
+        
+        hotspot_doc = {
+            "id": hotspot.id,
+            "topic_id": topic_id,
+            "x": hotspot.x,
+            "y": hotspot.y,
+            "label": hotspot.label,
+            "icon": hotspot.icon,
+            "color": hotspot.color,
+            "title": hotspot.title,
+            "description": hotspot.description,
+            "fun_fact": hotspot.fun_fact
+        }
+        
+        result = sb.table("hotspots").insert(hotspot_doc).execute()
+        
+        return {"message": "Hotspot added", "hotspot": result.data[0] if result.data else hotspot_doc}
+        
+    except Exception as e:
+        logger.error(f"Error adding hotspot: {str(e)}")
+        raise HTTPException(status_code=500, detail=str(e))
 
 @api_router.post("/chapters/{chapter_id}/topics/{topic_id}/annotations")
 async def add_annotation(chapter_id: str, topic_id: str, annotation: Annotation):
-    """Add an annotation (arrow, box, text) to a topic"""
-    
-    chapter = await db.chapters.find_one({"id": chapter_id})
-    if not chapter:
-        raise HTTPException(status_code=404, detail="Chapter not found")
-    
-    topics = chapter.get("topics", [])
-    for i, topic in enumerate(topics):
-        if topic.get("id") == topic_id:
-            annotations = topic.get("annotations", [])
-            annotations.append(annotation.model_dump())
-            topics[i]["annotations"] = annotations
-            break
-    
-    await db.chapters.update_one(
-        {"id": chapter_id},
-        {"$set": {"topics": topics}}
-    )
-    
-    return {"message": "Annotation added", "annotation": annotation}
+    """Add an annotation to a topic in Supabase"""
+    try:
+        sb = get_supabase()
+        
+        annotation_doc = {
+            "id": annotation.id,
+            "topic_id": topic_id,
+            "type": annotation.type,
+            "x": annotation.x,
+            "y": annotation.y,
+            "width": annotation.width,
+            "height": annotation.height,
+            "rotation": annotation.rotation,
+            "text": annotation.text,
+            "color": annotation.color,
+            "end_x": annotation.end_x,
+            "end_y": annotation.end_y
+        }
+        
+        result = sb.table("annotations").insert(annotation_doc).execute()
+        
+        return {"message": "Annotation added", "annotation": result.data[0] if result.data else annotation_doc}
+        
+    except Exception as e:
+        logger.error(f"Error adding annotation: {str(e)}")
+        raise HTTPException(status_code=500, detail=str(e))
 
 @api_router.delete("/chapters/{chapter_id}")
 async def delete_chapter(chapter_id: str):
-    """Delete a chapter"""
-    result = await db.chapters.delete_one({"id": chapter_id})
-    if result.deleted_count == 0:
-        raise HTTPException(status_code=404, detail="Chapter not found")
-    return {"message": "Chapter deleted"}
+    """Delete a chapter from Supabase (cascade deletes topics, hotspots, annotations)"""
+    try:
+        sb = get_supabase()
+        
+        result = sb.table("chapters").delete().eq("id", chapter_id).execute()
+        
+        if not result.data:
+            raise HTTPException(status_code=404, detail="Chapter not found")
+        
+        return {"message": "Chapter deleted"}
+        
+    except Exception as e:
+        logger.error(f"Error deleting chapter: {str(e)}")
+        raise HTTPException(status_code=500, detail=str(e))
 
 def parse_content_to_topics(content: str) -> List[Topic]:
     """Parse raw educational content into topics"""
