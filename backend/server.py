@@ -147,6 +147,345 @@ async def get_status_checks():
     
     return status_checks
 
+# ============== Image Generation Endpoints ==============
+
+@api_router.post("/generate-image", response_model=ImageGenerationResponse)
+async def generate_image(request: ImageGenerationRequest):
+    """Generate an image using Kei.ai API"""
+    
+    if not KEI_API_KEY:
+        raise HTTPException(status_code=500, detail="KEI_API_KEY not configured")
+    
+    headers = {
+        "Authorization": f"Bearer {KEI_API_KEY}",
+        "Content-Type": "application/json"
+    }
+    
+    try:
+        async with httpx.AsyncClient(timeout=60.0) as client:
+            # Route to appropriate endpoint based on model
+            if request.model.startswith("flux-kontext"):
+                endpoint = f"{KEI_API_BASE}/flux/kontext/generate"
+                payload = {
+                    "prompt": request.prompt,
+                    "aspectRatio": request.aspect_ratio,
+                    "outputFormat": request.output_format,
+                    "model": request.model,
+                    "enableTranslation": True,
+                    "promptUpsampling": True
+                }
+            elif request.model == "nano-banana-pro":
+                endpoint = f"{KEI_API_BASE}/nano-banana/generate"
+                payload = {
+                    "prompt": request.prompt,
+                    "aspectRatio": request.aspect_ratio,
+                    "outputFormat": request.output_format
+                }
+            elif request.model == "4o-image":
+                endpoint = f"{KEI_API_BASE}/4o-image/generate"
+                payload = {
+                    "prompt": request.prompt,
+                    "size": request.aspect_ratio,
+                    "nVariants": 1
+                }
+            else:
+                raise HTTPException(status_code=400, detail=f"Unsupported model: {request.model}")
+            
+            logger.info(f"Generating image with model {request.model}: {request.prompt[:100]}...")
+            response = await client.post(endpoint, json=payload, headers=headers)
+            
+            if response.status_code != 200:
+                logger.error(f"Kei.ai API error: {response.text}")
+                raise HTTPException(status_code=response.status_code, detail=f"Image generation failed: {response.text}")
+            
+            result = response.json()
+            
+            if result.get("code") == 200:
+                task_id = result.get("data", {}).get("taskId", "")
+                return ImageGenerationResponse(
+                    task_id=task_id,
+                    status="processing",
+                    message="Image generation started"
+                )
+            else:
+                raise HTTPException(status_code=500, detail=f"API error: {result.get('msg', 'Unknown error')}")
+                
+    except httpx.TimeoutException:
+        raise HTTPException(status_code=504, detail="Request timeout")
+    except Exception as e:
+        logger.error(f"Image generation error: {str(e)}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+@api_router.get("/image-status/{task_id}", response_model=TaskStatusResponse)
+async def get_image_status(task_id: str):
+    """Check the status of an image generation task"""
+    
+    if not KEI_API_KEY:
+        raise HTTPException(status_code=500, detail="KEI_API_KEY not configured")
+    
+    headers = {
+        "Authorization": f"Bearer {KEI_API_KEY}",
+        "Content-Type": "application/json"
+    }
+    
+    try:
+        async with httpx.AsyncClient(timeout=30.0) as client:
+            endpoint = f"{KEI_API_BASE}/record-info"
+            response = await client.get(endpoint, params={"taskId": task_id}, headers=headers)
+            
+            if response.status_code != 200:
+                raise HTTPException(status_code=response.status_code, detail="Failed to get task status")
+            
+            result = response.json()
+            data = result.get("data", {})
+            
+            status = data.get("status", "unknown")
+            image_url = data.get("imageUrl") or data.get("output", {}).get("imageUrl")
+            
+            return TaskStatusResponse(
+                task_id=task_id,
+                status=status,
+                image_url=image_url,
+                message=f"Task status: {status}"
+            )
+            
+    except Exception as e:
+        logger.error(f"Status check error: {str(e)}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+@api_router.get("/available-models")
+async def get_available_models():
+    """Get list of available image generation models"""
+    return {
+        "models": [
+            {
+                "id": "nano-banana-pro",
+                "name": "Nano Banana Pro",
+                "description": "Fast & affordable image generation based on Gemini",
+                "speed": "fast",
+                "quality": "good"
+            },
+            {
+                "id": "flux-kontext-pro",
+                "name": "Flux Kontext Pro",
+                "description": "Balanced quality and speed",
+                "speed": "medium",
+                "quality": "high"
+            },
+            {
+                "id": "flux-kontext-max",
+                "name": "Flux Kontext Max",
+                "description": "Highest quality and detail",
+                "speed": "slow",
+                "quality": "premium"
+            },
+            {
+                "id": "4o-image",
+                "name": "GPT-Image-1 (4o)",
+                "description": "OpenAI's image generation model",
+                "speed": "medium",
+                "quality": "high"
+            }
+        ]
+    }
+
+# ============== Chapter & Content Endpoints ==============
+
+@api_router.post("/chapters", response_model=Chapter)
+async def create_chapter(chapter_data: ChapterCreate):
+    """Create a new chapter from raw content"""
+    
+    # Parse content into topics
+    topics = parse_content_to_topics(chapter_data.content)
+    
+    chapter = Chapter(
+        title=chapter_data.title,
+        subject=chapter_data.subject,
+        description=chapter_data.description,
+        topics=topics
+    )
+    
+    # Save to database
+    doc = chapter.model_dump()
+    doc['created_at'] = doc['created_at'].isoformat()
+    await db.chapters.insert_one(doc)
+    
+    return chapter
+
+@api_router.get("/chapters", response_model=List[Chapter])
+async def get_chapters():
+    """Get all chapters"""
+    chapters = await db.chapters.find({}, {"_id": 0}).to_list(100)
+    for ch in chapters:
+        if isinstance(ch.get('created_at'), str):
+            ch['created_at'] = datetime.fromisoformat(ch['created_at'])
+    return chapters
+
+@api_router.get("/chapters/{chapter_id}", response_model=Chapter)
+async def get_chapter(chapter_id: str):
+    """Get a specific chapter"""
+    chapter = await db.chapters.find_one({"id": chapter_id}, {"_id": 0})
+    if not chapter:
+        raise HTTPException(status_code=404, detail="Chapter not found")
+    if isinstance(chapter.get('created_at'), str):
+        chapter['created_at'] = datetime.fromisoformat(chapter['created_at'])
+    return chapter
+
+@api_router.put("/chapters/{chapter_id}/topics/{topic_id}")
+async def update_topic(chapter_id: str, topic_id: str, topic_update: TopicUpdate):
+    """Update a specific topic within a chapter"""
+    
+    chapter = await db.chapters.find_one({"id": chapter_id})
+    if not chapter:
+        raise HTTPException(status_code=404, detail="Chapter not found")
+    
+    # Find and update the topic
+    topics = chapter.get("topics", [])
+    topic_found = False
+    
+    for i, topic in enumerate(topics):
+        if topic.get("id") == topic_id:
+            update_data = topic_update.model_dump(exclude_unset=True)
+            topics[i] = {**topic, **update_data}
+            topic_found = True
+            break
+    
+    if not topic_found:
+        raise HTTPException(status_code=404, detail="Topic not found")
+    
+    await db.chapters.update_one(
+        {"id": chapter_id},
+        {"$set": {"topics": topics}}
+    )
+    
+    return {"message": "Topic updated successfully", "topic": topics[i]}
+
+@api_router.post("/chapters/{chapter_id}/topics/{topic_id}/hotspots")
+async def add_hotspot(chapter_id: str, topic_id: str, hotspot: Hotspot):
+    """Add a hotspot to a topic"""
+    
+    chapter = await db.chapters.find_one({"id": chapter_id})
+    if not chapter:
+        raise HTTPException(status_code=404, detail="Chapter not found")
+    
+    topics = chapter.get("topics", [])
+    for i, topic in enumerate(topics):
+        if topic.get("id") == topic_id:
+            hotspots = topic.get("hotspots", [])
+            hotspots.append(hotspot.model_dump())
+            topics[i]["hotspots"] = hotspots
+            break
+    
+    await db.chapters.update_one(
+        {"id": chapter_id},
+        {"$set": {"topics": topics}}
+    )
+    
+    return {"message": "Hotspot added", "hotspot": hotspot}
+
+@api_router.post("/chapters/{chapter_id}/topics/{topic_id}/annotations")
+async def add_annotation(chapter_id: str, topic_id: str, annotation: Annotation):
+    """Add an annotation (arrow, box, text) to a topic"""
+    
+    chapter = await db.chapters.find_one({"id": chapter_id})
+    if not chapter:
+        raise HTTPException(status_code=404, detail="Chapter not found")
+    
+    topics = chapter.get("topics", [])
+    for i, topic in enumerate(topics):
+        if topic.get("id") == topic_id:
+            annotations = topic.get("annotations", [])
+            annotations.append(annotation.model_dump())
+            topics[i]["annotations"] = annotations
+            break
+    
+    await db.chapters.update_one(
+        {"id": chapter_id},
+        {"$set": {"topics": topics}}
+    )
+    
+    return {"message": "Annotation added", "annotation": annotation}
+
+@api_router.delete("/chapters/{chapter_id}")
+async def delete_chapter(chapter_id: str):
+    """Delete a chapter"""
+    result = await db.chapters.delete_one({"id": chapter_id})
+    if result.deleted_count == 0:
+        raise HTTPException(status_code=404, detail="Chapter not found")
+    return {"message": "Chapter deleted"}
+
+def parse_content_to_topics(content: str) -> List[Topic]:
+    """Parse raw educational content into topics"""
+    topics = []
+    
+    # Split by markdown headers or double newlines
+    sections = content.split('\n## ')
+    
+    if len(sections) == 1:
+        # Try splitting by double newlines if no headers
+        sections = content.split('\n\n')
+    
+    for idx, section in enumerate(sections):
+        if not section.strip():
+            continue
+        
+        lines = section.strip().split('\n')
+        title = lines[0].replace('#', '').strip() or f"Topic {idx + 1}"
+        content_text = '\n'.join(lines[1:]).strip() if len(lines) > 1 else section.strip()
+        
+        # Extract keywords for potential hotspots
+        keywords = extract_keywords(content_text)
+        
+        # Create default hotspots from keywords
+        hotspots = []
+        for i, keyword in enumerate(keywords[:6]):  # Max 6 hotspots
+            hotspots.append(Hotspot(
+                x=15 + (i % 3) * 30,
+                y=20 + (i // 3) * 35,
+                label=keyword,
+                icon=get_icon_for_keyword(keyword),
+                color=get_color_for_index(i),
+                title=keyword,
+                description=f"Learn more about {keyword.lower()} and its role in this topic.",
+                fun_fact=None
+            ))
+        
+        topics.append(Topic(
+            title=title,
+            subtitle=f"Interactive Learning Content",
+            content=content_text,
+            hotspots=hotspots,
+            annotations=[]
+        ))
+    
+    return topics if topics else [Topic(
+        title="Introduction",
+        subtitle="Getting Started",
+        content=content,
+        hotspots=[],
+        annotations=[]
+    )]
+
+def extract_keywords(text: str) -> List[str]:
+    """Extract important keywords from text"""
+    import re
+    # Find capitalized words (potential important terms)
+    words = re.findall(r'\b[A-Z][a-z]+(?:\s+[A-Z][a-z]+)*\b', text)
+    # Remove common words
+    common = {'The', 'This', 'That', 'These', 'Those', 'When', 'Where', 'What', 'How', 'Why'}
+    keywords = [w for w in words if w not in common]
+    return list(dict.fromkeys(keywords))[:10]  # Unique, max 10
+
+def get_icon_for_keyword(keyword: str) -> str:
+    """Get an appropriate icon for a keyword"""
+    icons = ['sparkles', 'sun', 'leaf', 'droplets', 'wind', 'cloud', 'star', 'zap', 'globe', 'atom']
+    return icons[len(keyword) % len(icons)]
+
+def get_color_for_index(idx: int) -> str:
+    """Get a color variant for an index"""
+    colors = ['primary', 'secondary', 'accent', 'warning', 'success']
+    return colors[idx % len(colors)]
+
 # Include the router in the main app
 app.include_router(api_router)
 
