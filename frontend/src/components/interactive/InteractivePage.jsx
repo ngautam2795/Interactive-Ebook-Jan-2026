@@ -2,8 +2,9 @@ import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { Hotspot, HotspotModal } from './Hotspot';
 import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
 import { getSubjectColor, getSubjectIcon } from '@/data/sampleContent';
-import { FlaskConical, Landmark, Calculator } from 'lucide-react';
+import { FlaskConical, Landmark, Calculator, Edit3 } from 'lucide-react';
 
 const subjectIcons = {
   science: FlaskConical,
@@ -14,8 +15,10 @@ const subjectIcons = {
 export const InteractivePage = ({ 
   topic,
   chapterTitle,
+  chapterId,
   subject,
-  onHotspotActivate
+  onHotspotActivate,
+  onEdit
 }) => {
   const [activeHotspot, setActiveHotspot] = useState(null);
   const [modalOpen, setModalOpen] = useState(false);
@@ -24,7 +27,8 @@ export const InteractivePage = ({
   const subjectColor = getSubjectColor(subject);
 
   const handleHotspotClick = (hotspotId) => {
-    const hotspot = topic.hotspots.find(h => h.id === hotspotId);
+    const hotspots = topic.hotspots || [];
+    const hotspot = hotspots.find(h => h.id === hotspotId);
     if (hotspot) {
       setActiveHotspot(hotspot);
       setModalOpen(true);
@@ -53,6 +57,9 @@ export const InteractivePage = ({
         return 'bg-gradient-to-br from-orange-50 via-amber-50 to-yellow-50';
     }
   };
+
+  const hotspots = topic.hotspots || [];
+  const annotations = topic.annotations || [];
 
   return (
     <motion.div
