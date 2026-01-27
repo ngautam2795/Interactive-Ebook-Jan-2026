@@ -162,22 +162,54 @@ async def generate_image(request: ImageGenerationRequest):
     }
     
     try:
-        async with httpx.AsyncClient(timeout=60.0) as client:
-            # Route to appropriate endpoint based on model
-            if request.model.startswith("flux-kontext"):
-                endpoint = f"{KEI_API_BASE}/flux/kontext/generate"
-                payload = {
-                    "prompt": request.prompt,
-                    "aspectRatio": request.aspect_ratio,
-                    "outputFormat": request.output_format,
-                    "model": request.model,
-                    "enableTranslation": True,
-                    "promptUpsampling": True
-                }
-            elif request.model == "nano-banana-pro":
-                endpoint = f"{KEI_API_BASE}/nano-banana/generate"
-                payload = {
-                    "prompt": request.prompt,
+        async with httpx.AsyncClient(timeout=60.0) as http_client:
+            # All models use the unified createTask endpoint
+            endpoint = f"{KEI_API_BASE}/jobs/createTask"
+            
+            # Map model names to kie.ai model identifiers
+            model_mapping = {
+                "nano-banana-pro": "google/nano-banana",
+                "flux-kontext-pro": "flux-kontext-pro",
+                "flux-kontext-max": "flux-kontext-max",
+                "4o-image": "openai/gpt-image-1"
+            }
+            
+            model_id = model_mapping.get(request.model, "google/nano-banana")
+            
+            payload = {
+                "model": model_id,
+                "prompt": request.prompt,
+                "image_size": request.aspect_ratio,
+                "output_format": request.output_format
+            }
+            
+            logger.info(f"Generating image with model {model_id}: {request.prompt[:100]}...")
+            response = await http_client.post(endpoint, json=payload, headers=headers)
+            
+            logger.info(f"API Response status: {response.status_code}")
+            logger.info(f"API Response: {response.text[:500]}")
+            
+            if response.status_code != 200:
+                logger.error(f"Kei.ai API error: {response.text}")
+                raise HTTPException(status_code=response.status_code, detail=f"Image generation failed: {response.text}")
+            
+            result = response.json()
+            
+            if result.get("code") == 200:
+                task_id = result.get("data", {}).get("taskId", "")
+                return ImageGenerationResponse(
+                    task_id=task_id,
+                    status="processing",
+                    message="Image generation started"
+                )
+            else:
+                raise HTTPException(status_code=500, detail=f"API error: {result.get('msg', 'Unknown error')}")
+                
+    except httpx.TimeoutException:
+        raise HTTPException(status_code=504, detail="Request timeout")
+    except Exception as e:
+        logger.error(f"Image generation error: {str(e)}")
+        raise HTTPException(status_code=500, detail=str(e))
                     "aspectRatio": request.aspect_ratio,
                     "outputFormat": request.output_format
                 }
