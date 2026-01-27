@@ -7,7 +7,7 @@ import { Toaster } from "@/components/ui/sonner";
 // Pages
 import { HomePage } from "@/pages/HomePage";
 import { EbookReader } from "@/components/ebook/EbookReader";
-import { ContentUploader } from "@/components/upload/ContentUploader";
+import { ContentCreator } from "@/components/creator/ContentCreator";
 
 // Data
 import { sampleChapters } from "@/data/sampleContent";
@@ -15,7 +15,7 @@ import { sampleChapters } from "@/data/sampleContent";
 function App() {
   const [currentView, setCurrentView] = useState('home'); // 'home', 'reader', 'uploader'
   const [customChapters, setCustomChapters] = useState(null);
-  const [showUploader, setShowUploader] = useState(false);
+  const [showCreator, setShowCreator] = useState(false);
 
   const handleStartReading = () => {
     setCurrentView('reader');
@@ -25,17 +25,18 @@ function App() {
     setCurrentView('home');
   };
 
-  const handleOpenUploader = () => {
-    setShowUploader(true);
+  const handleOpenCreator = () => {
+    setShowCreator(true);
   };
 
-  const handleCloseUploader = () => {
-    setShowUploader(false);
+  const handleCloseCreator = () => {
+    setShowCreator(false);
   };
 
-  const handleContentParsed = (chapters) => {
-    setCustomChapters(chapters);
-    setShowUploader(false);
+  const handleContentCreated = (chapter) => {
+    // Add the new chapter to custom chapters
+    setCustomChapters(prev => prev ? [...prev, chapter] : [chapter]);
+    setShowCreator(false);
     setCurrentView('reader');
   };
 
@@ -47,7 +48,7 @@ function App() {
             <HomePage
               key="home"
               onStartReading={handleStartReading}
-              onUploadContent={handleOpenUploader}
+              onUploadContent={handleOpenCreator}
             />
           )}
           
@@ -60,12 +61,12 @@ function App() {
           )}
         </AnimatePresence>
 
-        {/* Content Uploader Modal */}
+        {/* Content Creator Modal */}
         <AnimatePresence>
-          {showUploader && (
-            <ContentUploader
-              onClose={handleCloseUploader}
-              onContentParsed={handleContentParsed}
+          {showCreator && (
+            <ContentCreator
+              onClose={handleCloseCreator}
+              onContentCreated={handleContentCreated}
             />
           )}
         </AnimatePresence>
