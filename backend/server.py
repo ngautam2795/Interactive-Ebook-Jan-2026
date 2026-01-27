@@ -176,14 +176,18 @@ async def generate_image(request: ImageGenerationRequest):
             
             model_id = model_mapping.get(request.model, "google/nano-banana")
             
+            # Payload structure with nested input object as per kie.ai docs
             payload = {
                 "model": model_id,
-                "prompt": request.prompt,
-                "image_size": request.aspect_ratio,
-                "output_format": request.output_format
+                "input": {
+                    "prompt": request.prompt,
+                    "image_size": request.aspect_ratio,
+                    "output_format": request.output_format
+                }
             }
             
             logger.info(f"Generating image with model {model_id}: {request.prompt[:100]}...")
+            logger.info(f"Payload: {payload}")
             response = await http_client.post(endpoint, json=payload, headers=headers)
             
             logger.info(f"API Response status: {response.status_code}")
