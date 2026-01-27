@@ -1,0 +1,185 @@
+import React, { useState, useEffect, useCallback } from 'react';
+import { motion, AnimatePresence, useMotionValue, useTransform } from 'framer-motion';
+import { Header } from '@/components/layout/Header';
+import { Navigation, SwipeHint } from '@/components/layout/Navigation';
+import { InteractivePage } from '@/components/interactive/InteractivePage';
+import { TableOfContents } from './TableOfContents';
+import { sampleChapters, getAllTopics } from '@/data/sampleContent';
+
+export const EbookReader = ({ onBack }) => {
+  const allTopics = getAllTopics();
+  const [currentPageIndex, setCurrentPageIndex] = useState(0);
+  const [completedTopics, setCompletedTopics] = useState([]);
+  const [tocOpen, setTocOpen] = useState(false);
+  const [direction, setDirection] = useState(0);
+  const [showSwipeHint, setShowSwipeHint] = useState(true);
+
+  const currentTopic = allTopics[currentPageIndex];
+  const progress = ((currentPageIndex + 1) / allTopics.length) * 100;
+
+  // Handle swipe gestures
+  const x = useMotionValue(0);
+  const dragThreshold = 100;
+
+  // Hide swipe hint after first interaction
+  useEffect(() => {
+    if (completedTopics.length > 0) {
+      setShowSwipeHint(false);
+    }
+  }, [completedTopics]);
+
+  // Mark topic as completed when visiting
+  useEffect(() => {
+    if (currentTopic && !completedTopics.includes(currentTopic.id)) {
+      const timer = setTimeout(() => {
+        setCompletedTopics(prev => [...prev, currentTopic.id]);
+      }, 3000); // Mark as completed after 3 seconds on page
+      return () => clearTimeout(timer);
+    }
+  }, [currentTopic, completedTopics]);
+
+  const goToPage = useCallback((index, dir = 0) => {
+    if (index >= 0 && index < allTopics.length) {
+      setDirection(dir || (index > currentPageIndex ? 1 : -1));
+      setCurrentPageIndex(index);
+    }
+  }, [currentPageIndex, allTopics.length]);
+
+  const goNext = useCallback(() => {
+    if (currentPageIndex < allTopics.length - 1) {
+      goToPage(currentPageIndex + 1, 1);
+    }
+  }, [currentPageIndex, allTopics.length, goToPage]);
+
+  const goPrevious = useCallback(() => {
+    if (currentPageIndex > 0) {
+      goToPage(currentPageIndex - 1, -1);
+    }
+  }, [currentPageIndex, goToPage]);
+
+  const handleDragEnd = (event, info) => {
+    const { offset, velocity } = info;
+    
+    if (offset.x < -dragThreshold || velocity.x < -500) {
+      goNext();
+    } else if (offset.x > dragThreshold || velocity.x > 500) {
+      goPrevious();
+    }
+  };
+
+  const handleSelectTopic = (chapterId, topicId) => {
+    const index = allTopics.findIndex(t => t.id === topicId);
+    if (index !== -1) {
+      goToPage(index);
+    }
+  };
+
+  const handleHotspotActivate = (hotspotId) => {
+    // Track hotspot interactions
+    console.log('Hotspot activated:', hotspotId);
+  };
+
+  // Keyboard navigation
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      if (e.key === 'ArrowRight') goNext();
+      if (e.key === 'ArrowLeft') goPrevious();
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [goNext, goPrevious]);
+
+  // Page transition variants
+  const pageVariants = {
+    enter: (direction) => ({
+      x: direction > 0 ? '100%' : '-100%',
+      opacity: 0
+    }),
+    center: {
+      x: 0,
+      opacity: 1
+    },
+    exit: (direction) => ({
+      x: direction < 0 ? '100%' : '-100%',
+      opacity: 0
+    })
+  };
+
+  return (
+    <div className="min-h-screen bg-background overflow-hidden">
+      <Header
+        showBack
+        onBack={onBack}
+        title={currentTopic?.chapterTitle}
+        progress={progress}
+        currentPage={currentPageIndex + 1}
+        totalPages={allTopics.length}
+        onMenuClick={(action) => {
+          if (action === 'home') onBack();
+        }}
+      />
+
+      {/* Main Content with Swipe */}
+      <motion.div
+        className="relative touch-pan-y"
+        drag="x"
+        dragConstraints={{ left: 0, right: 0 }}
+        dragElastic={0.2}
+        onDragEnd={handleDragEnd}
+        style={{ x }}
+      >
+        <AnimatePresence mode="wait" custom={direction}>
+          <motion.div
+            key={currentPageIndex}
+            custom={direction}
+            variants={pageVariants}
+            initial="enter"
+            animate="center"
+            exit="exit"
+            transition={{
+              x: { type: "spring", stiffness: 300, damping: 30 },
+              opacity: { duration: 0.2 }
+            }}
+          >
+            {currentTopic && (
+              <InteractivePage
+                topic={currentTopic}
+                chapterTitle={currentTopic.chapterTitle}
+                subject={currentTopic.subject}
+                onHotspotActivate={handleHotspotActivate}
+              />
+            )}
+          </motion.div>
+        </AnimatePresence>
+      </motion.div>
+
+      {/* Navigation */}
+      <Navigation
+        onPrevious={goPrevious}
+        onNext={goNext}
+        onTableOfContents={() => setTocOpen(true)}
+        canGoPrevious={currentPageIndex > 0}
+        canGoNext={currentPageIndex < allTopics.length - 1}
+        currentPage={currentPageIndex + 1}
+        totalPages={allTopics.length}
+      />
+
+      {/* Swipe Hint */}
+      {showSwipeHint && currentPageIndex === 0 && (
+        <SwipeHint direction="left" />
+      )}
+
+      {/* Table of Contents */}
+      <TableOfContents
+        isOpen={tocOpen}
+        onClose={() => setTocOpen(false)}
+        chapters={sampleChapters}
+        currentTopicId={currentTopic?.id}
+        onSelectTopic={handleSelectTopic}
+        completedTopics={completedTopics}
+      />
+    </div>
+  );
+};
+
+export default EbookReader;
