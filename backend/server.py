@@ -1,7 +1,6 @@
 from fastapi import FastAPI, APIRouter, HTTPException, BackgroundTasks
 from dotenv import load_dotenv
 from starlette.middleware.cors import CORSMiddleware
-from motor.motor_asyncio import AsyncIOMotorClient
 import os
 import logging
 from pathlib import Path
@@ -11,15 +10,23 @@ import uuid
 from datetime import datetime, timezone
 import httpx
 import asyncio
+import json
+from supabase import create_client, Client
 
 
 ROOT_DIR = Path(__file__).parent
 load_dotenv(ROOT_DIR / '.env')
 
-# MongoDB connection
-mongo_url = os.environ['MONGO_URL']
-client = AsyncIOMotorClient(mongo_url)
-db = client[os.environ['DB_NAME']]
+# Supabase connection
+SUPABASE_URL = os.environ.get('SUPABASE_URL', '')
+SUPABASE_SERVICE_KEY = os.environ.get('SUPABASE_SERVICE_KEY', '')
+supabase: Client = None
+
+def get_supabase() -> Client:
+    global supabase
+    if supabase is None:
+        supabase = create_client(SUPABASE_URL, SUPABASE_SERVICE_KEY)
+    return supabase
 
 # Kei.ai API configuration
 KEI_API_KEY = os.environ.get('KEI_API_KEY', '')
@@ -34,7 +41,7 @@ api_router = APIRouter(prefix="/api")
 
 # Define Models
 class StatusCheck(BaseModel):
-    model_config = ConfigDict(extra="ignore")  # Ignore MongoDB's _id field
+    model_config = ConfigDict(extra="ignore")
     
     id: str = Field(default_factory=lambda: str(uuid.uuid4()))
     client_name: str
