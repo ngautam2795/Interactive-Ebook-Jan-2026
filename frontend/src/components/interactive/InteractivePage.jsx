@@ -197,34 +197,35 @@ export const InteractivePage = ({
         </motion.div>
 
         {/* Hotspot List (for accessibility) */}
-        <motion.div
-          className="mt-6 grid grid-cols-2 sm:grid-cols-3 gap-3"
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 0.6 }}
-        >
-          {topic.hotspots.map((hotspot, idx) => (
-            <motion.button
-              key={hotspot.id}
-              className="flex items-center gap-2 p-3 rounded-xl bg-card hover:bg-muted transition-colors text-left"
-              whileHover={{ scale: 1.02 }}
-              whileTap={{ scale: 0.98 }}
-              onClick={() => handleHotspotClick(hotspot.id)}
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.6 + (idx * 0.05) }}
-            >
-              <div 
-                className={`w-8 h-8 rounded-lg flex items-center justify-center`}
-                style={{ backgroundColor: `hsl(var(--${hotspot.color || 'primary'}) / 0.15)` }}
+        {hotspots.length > 0 && (
+          <motion.div
+            className="mt-6 grid grid-cols-2 sm:grid-cols-3 gap-3"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.6 }}
+          >
+            {hotspots.map((hotspot, idx) => (
+              <motion.button
+                key={hotspot.id}
+                className="flex items-center gap-2 p-3 rounded-xl bg-card hover:bg-muted transition-colors text-left"
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
+                onClick={() => handleHotspotClick(hotspot.id)}
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.6 + (idx * 0.05) }}
               >
-                <span className="text-xs font-bold" style={{ color: `hsl(var(--${hotspot.color || 'primary'}))` }}>
-                  {idx + 1}
+                <div 
+                  className={`w-8 h-8 rounded-lg flex items-center justify-center`}
+                  style={{ backgroundColor: `hsl(var(--${hotspot.color || 'primary'}) / 0.15)` }}
+                >
+                  <span className="text-xs font-bold" style={{ color: `hsl(var(--${hotspot.color || 'primary'}))` }}>
+                    {idx + 1}
+                  </span>
+                </div>
+                <span className="text-sm font-medium text-foreground truncate">
+                  {hotspot.label}
                 </span>
-              </div>
-              <span className="text-sm font-medium text-foreground truncate">
-                {hotspot.label}
-              </span>
             </motion.button>
           ))}
         </motion.div>
