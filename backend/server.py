@@ -224,9 +224,12 @@ async def get_image_status(task_id: str):
     }
     
     try:
-        async with httpx.AsyncClient(timeout=30.0) as client:
-            endpoint = f"{KEI_API_BASE}/record-info"
-            response = await client.get(endpoint, params={"taskId": task_id}, headers=headers)
+        async with httpx.AsyncClient(timeout=30.0) as http_client:
+            # Use the task status endpoint
+            endpoint = f"{KEI_API_BASE}/jobs/taskStatus"
+            response = await http_client.get(endpoint, params={"taskId": task_id}, headers=headers)
+            
+            logger.info(f"Status check response: {response.status_code} - {response.text[:500]}")
             
             if response.status_code != 200:
                 raise HTTPException(status_code=response.status_code, detail="Failed to get task status")
@@ -235,7 +238,14 @@ async def get_image_status(task_id: str):
             data = result.get("data", {})
             
             status = data.get("status", "unknown")
-            image_url = data.get("imageUrl") or data.get("output", {}).get("imageUrl")
+            # Check multiple possible locations for the image URL
+            image_url = (
+                data.get("imageUrl") or 
+                data.get("image_url") or 
+                data.get("output", {}).get("imageUrl") or
+                data.get("output", {}).get("image_url") or
+                (data.get("images", [{}])[0].get("url") if data.get("images") else None)
+            )
             
             return TaskStatusResponse(
                 task_id=task_id,
