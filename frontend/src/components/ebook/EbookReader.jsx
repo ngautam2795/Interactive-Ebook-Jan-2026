@@ -4,11 +4,21 @@ import { Header } from '@/components/layout/Header';
 import { Navigation, SwipeHint } from '@/components/layout/Navigation';
 import { InteractivePage } from '@/components/interactive/InteractivePage';
 import { TableOfContents } from './TableOfContents';
+import { TopicEditor } from '@/components/editor/TopicEditor';
 
-export const EbookReader = ({ onBack, chapters = [], initialChapterIndex = 0 }) => {
+export const EbookReader = ({ onBack, chapters = [], initialChapterIndex = 0, onChaptersUpdate }) => {
+  const [localChapters, setLocalChapters] = useState(chapters);
+  const [editingTopic, setEditingTopic] = useState(null);
+  const [editingChapterId, setEditingChapterId] = useState(null);
+
+  // Update local chapters when prop changes
+  useEffect(() => {
+    setLocalChapters(chapters);
+  }, [chapters]);
+
   // Flatten all topics from all chapters
   const allTopics = useMemo(() => {
-    return chapters.flatMap(chapter => 
+    return localChapters.flatMap(chapter => 
       (chapter.topics || []).map(topic => ({
         ...topic,
         chapterId: chapter.id,
@@ -16,18 +26,18 @@ export const EbookReader = ({ onBack, chapters = [], initialChapterIndex = 0 }) 
         subject: chapter.subject
       }))
     );
-  }, [chapters]);
+  }, [localChapters]);
 
   // Calculate initial page index based on chapter
   const getInitialPageIndex = useCallback(() => {
     if (initialChapterIndex === 0) return 0;
     
     let pageIndex = 0;
-    for (let i = 0; i < initialChapterIndex && i < chapters.length; i++) {
-      pageIndex += (chapters[i].topics || []).length;
+    for (let i = 0; i < initialChapterIndex && i < localChapters.length; i++) {
+      pageIndex += (localChapters[i].topics || []).length;
     }
     return pageIndex;
-  }, [chapters, initialChapterIndex]);
+  }, [localChapters, initialChapterIndex]);
 
   const [currentPageIndex, setCurrentPageIndex] = useState(getInitialPageIndex);
   const [completedTopics, setCompletedTopics] = useState([]);
