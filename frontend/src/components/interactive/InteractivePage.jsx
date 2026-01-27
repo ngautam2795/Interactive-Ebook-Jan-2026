@@ -228,7 +228,8 @@ export const InteractivePage = ({
                 </span>
             </motion.button>
           ))}
-        </motion.div>
+          </motion.div>
+        )}
       </div>
 
       {/* Hotspot Modal */}
@@ -237,12 +238,83 @@ export const InteractivePage = ({
         onClose={handleCloseModal}
         title={activeHotspot?.title}
         description={activeHotspot?.description}
-        funFact={activeHotspot?.funFact}
+        funFact={activeHotspot?.funFact || activeHotspot?.fun_fact}
         icon={activeHotspot?.icon}
         color={activeHotspot?.color}
       />
     </motion.div>
   );
+};
+
+// Annotation Renderer Component
+const AnnotationRenderer = ({ annotation }) => {
+  const colorVar = `hsl(var(--${annotation.color || 'primary'}))`;
+  
+  if (annotation.type === 'arrow') {
+    return (
+      <svg
+        className="absolute inset-0 w-full h-full pointer-events-none z-5"
+        style={{ overflow: 'visible' }}
+      >
+        <defs>
+          <marker
+            id={`arrowhead-view-${annotation.id}`}
+            markerWidth="10"
+            markerHeight="10"
+            refX="9"
+            refY="3"
+            orient="auto"
+          >
+            <path d="M0,0 L0,6 L9,3 z" fill={colorVar} />
+          </marker>
+        </defs>
+        <line
+          x1={`${annotation.x}%`}
+          y1={`${annotation.y}%`}
+          x2={`${annotation.end_x}%`}
+          y2={`${annotation.end_y}%`}
+          stroke={colorVar}
+          strokeWidth="3"
+          markerEnd={`url(#arrowhead-view-${annotation.id})`}
+        />
+      </svg>
+    );
+  }
+  
+  if (annotation.type === 'box') {
+    return (
+      <div
+        className="absolute border-2 rounded-lg pointer-events-none z-5"
+        style={{
+          left: `${annotation.x}%`,
+          top: `${annotation.y}%`,
+          width: `${annotation.width}%`,
+          height: `${annotation.height}%`,
+          borderColor: colorVar,
+          backgroundColor: `${colorVar}15`
+        }}
+      />
+    );
+  }
+  
+  if (annotation.type === 'text') {
+    return (
+      <div
+        className="absolute px-2 py-1 rounded font-semibold text-sm pointer-events-none z-5"
+        style={{
+          left: `${annotation.x}%`,
+          top: `${annotation.y}%`,
+          color: colorVar,
+          backgroundColor: 'hsl(var(--background) / 0.9)',
+          boxShadow: '0 2px 8px rgba(0,0,0,0.1)'
+        }}
+      >
+        {annotation.text}
+      </div>
+    );
+  }
+  
+  return null;
 };
 
 // Placeholder illustration component when no image URL is provided
