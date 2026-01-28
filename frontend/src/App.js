@@ -26,30 +26,14 @@ function App() {
   // All chapters = sample + saved
   const allChapters = [...sampleChapters, ...savedChapters];
 
-  // Fetch saved chapters from backend
-  const fetchChapters = useCallback(async () => {
-    try {
-      setIsLoading(true);
-      const response = await axios.get(`${BACKEND_URL}/api/chapters`);
-      const chapters = response.data || [];
-      
-      // Format chapters to match expected structure
-      const formattedChapters = chapters.map(formatChapter);
-      setSavedChapters(formattedChapters);
-    } catch (error) {
-      console.log('No saved chapters found or API not available:', error);
-    } finally {
-      setIsLoading(false);
-    }
-  }, []);
-
   // Format chapter from API to match expected structure
-  const formatChapter = (chapter) => ({
+  const formatChapter = useCallback((chapter) => ({
     id: chapter.id,
     title: chapter.title,
     subject: chapter.subject,
     description: chapter.description,
     created_at: chapter.created_at,
+    favorite: chapter.favorite ?? false,
     topics: (chapter.topics || []).map(topic => ({
       id: topic.id,
       title: topic.title,
@@ -69,7 +53,24 @@ function App() {
       })),
       annotations: topic.annotations || []
     }))
-  });
+  }), []);
+
+  // Fetch saved chapters from backend
+  const fetchChapters = useCallback(async () => {
+    try {
+      setIsLoading(true);
+      const response = await axios.get(`${BACKEND_URL}/api/chapters`);
+      const chapters = response.data || [];
+      
+      // Format chapters to match expected structure
+      const formattedChapters = chapters.map(formatChapter);
+      setSavedChapters(formattedChapters);
+    } catch (error) {
+      console.log('No saved chapters found or API not available:', error);
+    } finally {
+      setIsLoading(false);
+    }
+  }, [formatChapter]);
 
   useEffect(() => {
     fetchChapters();
@@ -118,6 +119,12 @@ function App() {
     setSavedChapters(prev => prev.filter(ch => ch.id !== chapterId));
   };
 
+  const handleToggleFavorite = (chapterId, favorite) => {
+    setSavedChapters(prev => prev.map(ch => (
+      ch.id === chapterId ? { ...ch, favorite } : ch
+    )));
+  };
+
   const handleChaptersUpdate = (updatedChapters) => {
     // Refresh from server to get latest data
     fetchChapters();
@@ -135,6 +142,7 @@ function App() {
               savedChapters={savedChapters}
               onRefreshChapters={fetchChapters}
               onDeleteChapter={handleDeleteChapter}
+              onToggleFavorite={handleToggleFavorite}
               isLoading={isLoading}
             />
           )}
