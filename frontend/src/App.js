@@ -22,6 +22,7 @@ function App() {
   const [showCreator, setShowCreator] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [activeChapterIndex, setActiveChapterIndex] = useState(0);
+  const [homeTab, setHomeTab] = useState('demo');
 
   // All chapters = sample + saved
   const allChapters = [...sampleChapters, ...savedChapters];
@@ -77,6 +78,8 @@ function App() {
   }, [fetchChapters]);
 
   const handleStartReading = (chapterIndex = 0) => {
+    const nextTab = chapterIndex >= sampleChapters.length ? 'library' : 'demo';
+    setHomeTab(nextTab);
     setActiveChapterIndex(chapterIndex);
     setCurrentView('reader');
   };
@@ -84,6 +87,12 @@ function App() {
   const handleBack = () => {
     setCurrentView('home');
     // Refresh chapters when coming back
+    fetchChapters();
+  };
+
+  const handleGoLibrary = () => {
+    setHomeTab('library');
+    setCurrentView('home');
     fetchChapters();
   };
 
@@ -143,6 +152,8 @@ function App() {
               onRefreshChapters={fetchChapters}
               onDeleteChapter={handleDeleteChapter}
               onToggleFavorite={handleToggleFavorite}
+              initialTab={homeTab}
+              onTabChange={setHomeTab}
               isLoading={isLoading}
             />
           )}
@@ -151,6 +162,7 @@ function App() {
             <EbookReader
               key="reader"
               onBack={handleBack}
+              onGoLibrary={handleGoLibrary}
               chapters={allChapters}
               initialChapterIndex={activeChapterIndex}
               onChaptersUpdate={handleChaptersUpdate}
