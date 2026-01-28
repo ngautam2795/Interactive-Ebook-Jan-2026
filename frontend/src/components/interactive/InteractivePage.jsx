@@ -79,6 +79,7 @@ export const InteractivePage = ({
           <Badge 
             variant="outline" 
             className={`gap-1.5 px-3 py-1.5 border-2 font-semibold capitalize`}
+            data-testid="reader-subject-badge"
             style={{
               borderColor: `hsl(var(--${subjectColor}))`,
               color: `hsl(var(--${subjectColor}))`
@@ -87,7 +88,7 @@ export const InteractivePage = ({
             <SubjectIcon className="w-3.5 h-3.5" />
             {subject}
           </Badge>
-          <span className="text-sm text-muted-foreground">
+          <span className="text-sm text-muted-foreground" data-testid="reader-chapter-label">
             {chapterTitle}
           </span>
         </motion.div>
@@ -99,10 +100,10 @@ export const InteractivePage = ({
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.2 }}
         >
-          <h1 className="font-display font-bold text-2xl sm:text-3xl lg:text-4xl text-foreground mb-2">
+          <h1 className="font-display font-bold text-2xl sm:text-3xl lg:text-4xl text-foreground mb-2" data-testid="reader-topic-title">
             {topic.title}
           </h1>
-          <p className="text-muted-foreground text-base sm:text-lg">
+          <p className="text-muted-foreground text-base sm:text-lg" data-testid="reader-topic-subtitle">
             {topic.subtitle}
           </p>
         </motion.div>
@@ -163,6 +164,7 @@ export const InteractivePage = ({
                 size="sm"
                 onClick={() => onEdit(topic, chapterId)}
                 className="gap-2 bg-white/80 hover:bg-white"
+                data-testid="reader-edit-topic-button"
               >
                 <Edit3 className="w-4 h-4" />
                 Edit
@@ -211,6 +213,7 @@ export const InteractivePage = ({
                 whileHover={{ scale: 1.02 }}
                 whileTap={{ scale: 0.98 }}
                 onClick={() => handleHotspotClick(hotspot.id)}
+                data-testid={`reader-hotspot-list-${hotspot.id}`}
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.6 + (idx * 0.05) }}
