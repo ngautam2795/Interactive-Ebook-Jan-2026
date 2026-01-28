@@ -645,13 +645,13 @@ Volcanic eruptions can be explosive or effusive. Explosive eruptions blast ash a
                   <span className="font-semibold">Content Ready!</span>
                 </div>
 
-                <Card>
+                <Card data-testid="creator-preview-card">
                   <CardHeader>
                     <div className="flex items-center gap-3">
                       <SubjectIcon className="w-6 h-6 text-primary" />
                       <div>
-                        <CardTitle className="text-lg">{parsedContent.title}</CardTitle>
-                        <CardDescription className="capitalize">{parsedContent.subject}</CardDescription>
+                        <CardTitle className="text-lg" data-testid="creator-preview-title">{parsedContent.title}</CardTitle>
+                        <CardDescription className="capitalize" data-testid="creator-preview-subject">{parsedContent.subject}</CardDescription>
                       </div>
                     </div>
                   </CardHeader>
@@ -670,6 +670,7 @@ Volcanic eruptions can be explosive or effusive. Explosive eruptions blast ash a
                       <div 
                         key={topic.id}
                         className="flex items-center gap-3 p-3 rounded-lg bg-muted/50"
+                        data-testid={`creator-preview-topic-${topic.id}`}
                       >
                         <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center text-primary font-bold text-sm">
                           {idx + 1}
