@@ -318,6 +318,7 @@ export const HomePage = ({
                       index={idx}
                       onClick={() => onStartReading(idx)}
                       isDemo
+                      dataTestIdPrefix={`demo-chapter-${chapter.id}`}
                     />
                   ))}
                 </div>
