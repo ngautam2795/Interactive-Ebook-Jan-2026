@@ -613,20 +613,20 @@ const ChapterCard = ({
           </div>
           
           <CardContent className="p-4">
-            <h3 className="font-display font-bold text-foreground mb-1 group-hover:text-primary transition-colors line-clamp-2">
+            <h3 className="font-display font-bold text-foreground mb-1 group-hover:text-primary transition-colors line-clamp-2" data-testid={`${dataTestIdPrefix}-title`}>
               {chapter.title}
             </h3>
-            <p className="text-sm text-muted-foreground mb-3 line-clamp-2">
+            <p className="text-sm text-muted-foreground mb-3 line-clamp-2" data-testid={`${dataTestIdPrefix}-description`}>
               {chapter.description || `Interactive ${chapter.subject} content`}
             </p>
             <div className="flex items-center justify-between">
-              <div className="flex items-center gap-3 text-xs text-muted-foreground">
-                <span className="flex items-center gap-1">
+              <div className="flex items-center gap-3 text-xs text-muted-foreground" data-testid={`${dataTestIdPrefix}-meta`}>
+                <span className="flex items-center gap-1" data-testid={`${dataTestIdPrefix}-topic-count`}>
                   <Layers className="w-3 h-3" />
                   {topicCount} topic{topicCount !== 1 ? 's' : ''}
                 </span>
                 {showDate && chapter.created_at && (
-                  <span className="flex items-center gap-1">
+                  <span className="flex items-center gap-1" data-testid={`${dataTestIdPrefix}-created-date`}>
                     <Clock className="w-3 h-3" />
                     {formatDate(chapter.created_at)}
                   </span>
