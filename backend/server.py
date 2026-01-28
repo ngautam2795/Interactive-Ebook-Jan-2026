@@ -20,6 +20,7 @@ load_dotenv(ROOT_DIR / '.env')
 # Supabase connection
 SUPABASE_URL = os.environ.get('SUPABASE_URL')
 SUPABASE_SERVICE_KEY = os.environ.get('SUPABASE_SERVICE_KEY')
+CORS_ORIGINS = os.environ.get('CORS_ORIGINS')
 supabase: Client = None
 
 def get_supabase() -> Client:
@@ -701,7 +702,7 @@ app.include_router(api_router)
 app.add_middleware(
     CORSMiddleware,
     allow_credentials=True,
-    allow_origins=os.environ.get('CORS_ORIGINS', '*').split(','),
+    allow_origins=CORS_ORIGINS.split(','),
     allow_methods=["*"],
     allow_headers=["*"],
 )
