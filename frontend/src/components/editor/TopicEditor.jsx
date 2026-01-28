@@ -580,14 +580,14 @@ export const TopicEditor = ({
         </div>
 
         {/* Sidebar */}
-        <div className="w-80 border-l border-border bg-card overflow-auto p-4">
-          <h3 className="font-semibold text-foreground mb-4">Elements</h3>
+        <div className="w-80 border-l border-border bg-card overflow-auto p-4" data-testid="topic-editor-sidebar">
+          <h3 className="font-semibold text-foreground mb-4" data-testid="topic-editor-sidebar-title">Elements</h3>
           
           {/* Hotspots List */}
           <div className="mb-6">
             <div className="flex items-center justify-between mb-2">
-              <h4 className="text-sm font-medium text-muted-foreground">Hotspots</h4>
-              <Badge variant="outline">{hotspots.length}</Badge>
+              <h4 className="text-sm font-medium text-muted-foreground" data-testid="topic-editor-hotspots-title">Hotspots</h4>
+              <Badge variant="outline" data-testid="topic-editor-hotspots-count">{hotspots.length}</Badge>
             </div>
             <div className="space-y-2">
               {hotspots.map((hotspot, idx) => (
@@ -599,6 +599,7 @@ export const TopicEditor = ({
                       : 'bg-muted/50 hover:bg-muted'
                   }`}
                   onClick={() => setSelectedItem({ type: 'hotspot', id: hotspot.id })}
+                  data-testid={`topic-editor-hotspot-item-${hotspot.id}`}
                 >
                   <div 
                     className="w-8 h-8 rounded-full flex items-center justify-center text-white text-xs font-bold flex-shrink-0"
@@ -607,8 +608,8 @@ export const TopicEditor = ({
                     {idx + 1}
                   </div>
                   <div className="flex-1 min-w-0">
-                    <p className="text-sm font-medium text-foreground truncate">{hotspot.label}</p>
-                    <p className="text-xs text-muted-foreground truncate">{hotspot.title}</p>
+                    <p className="text-sm font-medium text-foreground truncate" data-testid={`topic-editor-hotspot-label-${hotspot.id}`}>{hotspot.label}</p>
+                    <p className="text-xs text-muted-foreground truncate" data-testid={`topic-editor-hotspot-title-${hotspot.id}`}>{hotspot.title}</p>
                   </div>
                   <Button
                     variant="ghost"
@@ -620,6 +621,7 @@ export const TopicEditor = ({
                       toast.success('Hotspot deleted');
                     }}
                     className="text-muted-foreground hover:text-destructive"
+                    data-testid={`topic-editor-hotspot-delete-${hotspot.id}`}
                   >
                     <X className="w-4 h-4" />
                   </Button>
@@ -636,8 +638,8 @@ export const TopicEditor = ({
           {/* Annotations List */}
           <div>
             <div className="flex items-center justify-between mb-2">
-              <h4 className="text-sm font-medium text-muted-foreground">Annotations</h4>
-              <Badge variant="outline">{annotations.length}</Badge>
+              <h4 className="text-sm font-medium text-muted-foreground" data-testid="topic-editor-annotations-title">Annotations</h4>
+              <Badge variant="outline" data-testid="topic-editor-annotations-count">{annotations.length}</Badge>
             </div>
             <div className="space-y-2">
               {annotations.map((annotation, idx) => (
@@ -649,6 +651,7 @@ export const TopicEditor = ({
                       : 'bg-muted/50 hover:bg-muted'
                   }`}
                   onClick={() => setSelectedItem({ type: 'annotation', id: annotation.id })}
+                  data-testid={`topic-editor-annotation-item-${annotation.id}`}
                 >
                   <div 
                     className="w-8 h-8 rounded-lg flex items-center justify-center text-white text-xs font-bold flex-shrink-0"
@@ -657,9 +660,9 @@ export const TopicEditor = ({
                     {annotation.type === 'arrow' ? '→' : annotation.type === 'box' ? '□' : 'T'}
                   </div>
                   <div className="flex-1 min-w-0">
-                    <p className="text-sm font-medium text-foreground capitalize">{annotation.type}</p>
+                    <p className="text-sm font-medium text-foreground capitalize" data-testid={`topic-editor-annotation-type-${annotation.id}`}>{annotation.type}</p>
                     {annotation.type === 'text' && (
-                      <p className="text-xs text-muted-foreground truncate">{annotation.text}</p>
+                      <p className="text-xs text-muted-foreground truncate" data-testid={`topic-editor-annotation-text-${annotation.id}`}>{annotation.text}</p>
                     )}
                   </div>
                   <Button
@@ -671,6 +674,7 @@ export const TopicEditor = ({
                       toast.success('Annotation deleted');
                     }}
                     className="text-muted-foreground hover:text-destructive"
+                    data-testid={`topic-editor-annotation-delete-${annotation.id}`}
                   >
                     <X className="w-4 h-4" />
                   </Button>
