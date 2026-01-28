@@ -497,11 +497,12 @@ export const HomePage = ({
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel disabled={isDeleting}>Cancel</AlertDialogCancel>
+            <AlertDialogCancel disabled={isDeleting} data-testid="delete-chapter-cancel-button">Cancel</AlertDialogCancel>
             <AlertDialogAction
               onClick={handleDeleteChapter}
               disabled={isDeleting}
               className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+              data-testid="delete-chapter-confirm-button"
             >
               {isDeleting ? 'Deleting...' : 'Delete Chapter'}
             </AlertDialogAction>
