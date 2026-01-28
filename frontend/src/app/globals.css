@@ -1,26 +1,210 @@
+@import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;500;600;700;800&family=Fredoka:wght@400;500;600;700&display=swap');
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
+@layer base {
+    :root {
+        /* Warm & Friendly Educational Color Palette */
+        --background: 32 100% 98%;
+        --foreground: 25 30% 18%;
+        
+        /* Primary - Warm Coral Orange */
+        --primary: 16 85% 58%;
+        --primary-foreground: 0 0% 100%;
+        --primary-glow: 16 85% 68%;
+        --primary-muted: 16 65% 88%;
+        
+        /* Secondary - Soft Knowledge Green */
+        --secondary: 142 52% 52%;
+        --secondary-foreground: 0 0% 100%;
+        --secondary-muted: 142 45% 92%;
+        
+        /* Accent - Curiosity Coral */
+        --accent: 28 90% 62%;
+        --accent-foreground: 25 30% 15%;
+        --accent-muted: 28 80% 94%;
+        
+        /* Cards & Surfaces */
+        --card: 0 0% 100%;
+        --card-foreground: 25 30% 18%;
+        --card-elevated: 35 100% 99%;
+        
+        --popover: 0 0% 100%;
+        --popover-foreground: 25 30% 18%;
+        
+        /* Muted tones */
+        --muted: 35 40% 94%;
+        --muted-foreground: 25 15% 45%;
+        
+        /* State colors */
+        --destructive: 0 72% 55%;
+        --destructive-foreground: 0 0% 100%;
+        --success: 142 52% 48%;
+        --success-foreground: 0 0% 100%;
+        --warning: 38 92% 55%;
+        --warning-foreground: 25 30% 15%;
+        
+        /* UI Elements */
+        --border: 32 30% 88%;
+        --input: 32 30% 92%;
+        --ring: 16 85% 58%;
+        
+        /* Educational Subject Colors */
+        --science: 142 52% 52%;
+        --history: 28 75% 55%;
+        --math: 220 70% 55%;
+        
+        /* Hotspot Colors */
+        --hotspot: 16 85% 58%;
+        --hotspot-glow: 16 100% 70%;
+        --hotspot-pulse: 28 90% 65%;
+        
+        /* Gradients */
+        --gradient-warm: linear-gradient(135deg, hsl(16 85% 58%), hsl(28 90% 62%));
+        --gradient-nature: linear-gradient(135deg, hsl(142 52% 52%), hsl(165 55% 55%));
+        --gradient-learning: linear-gradient(135deg, hsl(32 100% 97%), hsl(35 50% 95%));
+        --gradient-page: linear-gradient(180deg, hsl(35 100% 99%), hsl(32 80% 96%));
+        
+        /* Shadows */
+        --shadow-soft: 0 4px 20px -4px hsl(25 30% 18% / 0.08);
+        --shadow-medium: 0 8px 30px -6px hsl(25 30% 18% / 0.12);
+        --shadow-elevated: 0 20px 50px -12px hsl(25 30% 18% / 0.18);
+        --shadow-glow: 0 0 40px hsl(16 85% 58% / 0.25);
+        --shadow-hotspot: 0 0 20px hsl(16 100% 65% / 0.5);
+        
+        /* Animations */
+        --transition-smooth: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        --transition-bounce: 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+        --transition-spring: 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        
+        --radius: 0.75rem;
+        --radius-lg: 1rem;
+        --radius-xl: 1.5rem;
+    }
+    
+    .dark {
+        --background: 25 25% 8%;
+        --foreground: 35 30% 95%;
+        
+        --primary: 16 85% 58%;
+        --primary-foreground: 0 0% 100%;
+        --primary-glow: 16 90% 65%;
+        --primary-muted: 16 40% 20%;
+        
+        --secondary: 142 45% 45%;
+        --secondary-foreground: 0 0% 100%;
+        --secondary-muted: 142 30% 15%;
+        
+        --accent: 28 85% 58%;
+        --accent-foreground: 0 0% 100%;
+        --accent-muted: 28 40% 18%;
+        
+        --card: 25 20% 12%;
+        --card-foreground: 35 30% 95%;
+        --card-elevated: 25 18% 15%;
+        
+        --popover: 25 20% 12%;
+        --popover-foreground: 35 30% 95%;
+        
+        --muted: 25 15% 18%;
+        --muted-foreground: 35 20% 60%;
+        
+        --destructive: 0 62% 45%;
+        --destructive-foreground: 0 0% 100%;
+        
+        --border: 25 15% 20%;
+        --input: 25 15% 18%;
+        --ring: 16 85% 58%;
+        
+        --shadow-soft: 0 4px 20px -4px hsl(0 0% 0% / 0.3);
+        --shadow-medium: 0 8px 30px -6px hsl(0 0% 0% / 0.4);
+        --shadow-elevated: 0 20px 50px -12px hsl(0 0% 0% / 0.5);
+    }
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+@layer base {
+    * {
+        @apply border-border;
+    }
+    
+    html {
+        scroll-behavior: smooth;
+        -webkit-tap-highlight-color: transparent;
+    }
+    
+    body {
+        @apply bg-background text-foreground antialiased;
+        font-family: 'Nunito', -apple-system, BlinkMacSystemFont, sans-serif;
+    }
+    
+    h1, h2, h3, h4, h5, h6 {
+        font-family: 'Fredoka', 'Nunito', sans-serif;
+    }
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+@layer components {
+    /* Interactive Page Container */
+    .page-container {
+        @apply relative w-full min-h-screen overflow-hidden;
+        background: var(--gradient-page);
+    }
+    
+    /* Hotspot Styles */
+    .hotspot {
+        @apply absolute cursor-pointer z-10;
+        animation: hotspot-pulse 2s ease-in-out infinite;
+    }
+    
+    .hotspot-marker {
+        @apply w-10 h-10 rounded-full flex items-center justify-center;
+        background: var(--gradient-warm);
+        box-shadow: var(--shadow-hotspot);
+    }
+    
+    .hotspot-ring {
+        @apply absolute inset-0 rounded-full;
+        animation: hotspot-ring 2s ease-out infinite;
+    }
+    
+    /* Swipe Container */
+    .swipe-container {
+        @apply relative overflow-hidden;
+        touch-action: pan-y pinch-zoom;
+    }
+    
+    /* Content Card Styles */
+    .content-card {
+        @apply rounded-xl p-4 sm:p-6;
+        background: hsl(var(--card));
+        box-shadow: var(--shadow-medium);
+    }
+    
+    .content-card-elevated {
+        @apply rounded-2xl p-6;
+        background: hsl(var(--card-elevated));
+        box-shadow: var(--shadow-elevated);
+    }
+    
+    /* Progress Bar */
+    .progress-track {
+        @apply h-1.5 rounded-full overflow-hidden;
+        background: hsl(var(--muted));
+    }
+    
+    .progress-fill {
+        @apply h-full rounded-full;
+        background: var(--gradient-warm);
+        transition: width var(--transition-smooth);
+    }
+}
+
+/* App-specific overrides */
+.app-container {
+  min-height: 100vh;
+  min-height: 100dvh;
+}
+
+@supports (-webkit-touch-callout: none) {
+  .app-container {
+    min-height: -webkit-fill-available;
   }
-}
-
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
 }
