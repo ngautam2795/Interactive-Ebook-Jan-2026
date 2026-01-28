@@ -95,7 +95,7 @@ export const TableOfContents = ({
                       transition={{ delay: chapterIdx * 0.1 }}
                     >
                       {/* Chapter Header */}
-                      <div className="flex items-center gap-3 mb-3">
+                      <div className="flex items-center gap-3 mb-3" data-testid={`toc-chapter-${chapter.id}`}>
                         <div 
                           className={`w-8 h-8 rounded-lg flex items-center justify-center`}
                           style={{ backgroundColor: `hsl(var(--${subjectColor}) / 0.15)` }}
@@ -106,10 +106,10 @@ export const TableOfContents = ({
                           />
                         </div>
                         <div className="flex-1 min-w-0">
-                          <h3 className="font-semibold text-foreground text-sm truncate">
+                          <h3 className="font-semibold text-foreground text-sm truncate" data-testid={`toc-chapter-${chapter.id}-title`}>
                             {chapter.title}
                           </h3>
-                          <p className="text-xs text-muted-foreground">
+                          <p className="text-xs text-muted-foreground" data-testid={`toc-chapter-${chapter.id}-count`}>
                             {chapter.topics.length} topics
                           </p>
                         </div>
