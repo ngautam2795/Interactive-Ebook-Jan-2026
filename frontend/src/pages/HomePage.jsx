@@ -361,7 +361,7 @@ export const HomePage = ({
                         Create your first interactive chapter by uploading educational content. 
                         Our AI will generate beautiful illustrations and interactive elements.
                       </p>
-                      <Button variant="warm" onClick={onUploadContent} className="gap-2">
+                      <Button variant="warm" onClick={onUploadContent} className="gap-2" data-testid="library-create-first-button">
                         <Plus className="w-4 h-4" />
                         Create Your First Chapter
                       </Button>
