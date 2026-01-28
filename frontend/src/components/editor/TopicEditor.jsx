@@ -782,7 +782,7 @@ export const TopicEditor = ({
 
       {/* Add Text Dialog */}
       <Dialog open={!!textDialog} onOpenChange={() => setTextDialog(null)}>
-        <DialogContent className="sm:max-w-md">
+        <DialogContent className="sm:max-w-md" data-testid="topic-editor-add-text-dialog">
           <DialogHeader>
             <DialogTitle>Add Text</DialogTitle>
           </DialogHeader>
@@ -794,6 +794,7 @@ export const TopicEditor = ({
                   value={textDialog.text}
                   onChange={(e) => setTextDialog({ ...textDialog, text: e.target.value })}
                   placeholder="Enter text..."
+                  data-testid="topic-editor-text-input"
                 />
               </div>
               <div className="space-y-2">
@@ -806,6 +807,7 @@ export const TopicEditor = ({
                         textDialog.color === color.id ? 'border-foreground scale-110' : 'border-transparent'
                       }`}
                       onClick={() => setTextDialog({ ...textDialog, color: color.id })}
+                      data-testid={`topic-editor-text-color-${color.id}`}
                     />
                   ))}
                 </div>
@@ -813,8 +815,8 @@ export const TopicEditor = ({
             </div>
           )}
           <DialogFooter>
-            <Button variant="outline" onClick={() => setTextDialog(null)}>Cancel</Button>
-            <Button variant="warm" onClick={handleAddText}>
+            <Button variant="outline" onClick={() => setTextDialog(null)} data-testid="topic-editor-text-cancel-button">Cancel</Button>
+            <Button variant="warm" onClick={handleAddText} data-testid="topic-editor-text-add-button">
               <Plus className="w-4 h-4 mr-2" />
               Add Text
             </Button>
