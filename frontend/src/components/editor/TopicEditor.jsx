@@ -406,10 +406,11 @@ export const TopicEditor = ({
       </div>
 
       {/* Main Content */}
-      <div className="flex h-[calc(100vh-73px)]">
+      <div className="flex h-[calc(100vh-73px)]" data-testid="topic-editor-body">
         {/* Canvas Area */}
         <div 
           className="flex-1 overflow-auto p-6 bg-muted/30"
+          data-testid="topic-editor-canvas-area"
           onMouseMove={isDragging ? handleHotspotDrag : handleCanvasMouseMove}
           onMouseUp={() => {
             handleHotspotDragEnd();
@@ -421,7 +422,7 @@ export const TopicEditor = ({
           }}
         >
           {/* Toolbar */}
-          <div className="flex items-center gap-2 mb-4 p-2 rounded-xl bg-card shadow-medium max-w-fit mx-auto">
+          <div className="flex items-center gap-2 mb-4 p-2 rounded-xl bg-card shadow-medium max-w-fit mx-auto" data-testid="topic-editor-toolbar">
             {tools.map((tool) => (
               <Button
                 key={tool.id}
@@ -430,6 +431,7 @@ export const TopicEditor = ({
                 onClick={() => setActiveTool(tool.id)}
                 className="gap-2"
                 title={tool.label}
+                data-testid={`topic-editor-tool-${tool.id}`}
               >
                 <tool.icon className="w-4 h-4" />
                 <span className="hidden sm:inline">{tool.label}</span>
@@ -441,7 +443,7 @@ export const TopicEditor = ({
             {/* Color Picker */}
             <Popover>
               <PopoverTrigger asChild>
-                <Button variant="ghost" size="sm" className="gap-2">
+                <Button variant="ghost" size="sm" className="gap-2" data-testid="topic-editor-color-picker">
                   <div 
                     className={`w-5 h-5 rounded-full ${colorOptions.find(c => c.id === selectedColor)?.class}`}
                   />
@@ -458,6 +460,7 @@ export const TopicEditor = ({
                       }`}
                       onClick={() => setSelectedColor(color.id)}
                       title={color.label}
+                      data-testid={`topic-editor-color-${color.id}`}
                     />
                   ))}
                 </div>
@@ -474,6 +477,7 @@ export const TopicEditor = ({
                   onClick={handleEditSelected}
                   className="gap-2"
                   disabled={selectedAnnotation && selectedAnnotation.type !== 'text'}
+                  data-testid="topic-editor-edit-button"
                 >
                   <Edit3 className="w-4 h-4" />
                   Edit
@@ -483,6 +487,7 @@ export const TopicEditor = ({
                   size="sm"
                   onClick={handleDeleteSelected}
                   className="gap-2 text-destructive hover:text-destructive"
+                  data-testid="topic-editor-delete-button"
                 >
                   <Trash2 className="w-4 h-4" />
                   Delete
@@ -497,6 +502,7 @@ export const TopicEditor = ({
             className="relative max-w-4xl mx-auto rounded-2xl overflow-hidden shadow-elevated bg-gradient-to-br from-amber-50 via-orange-50 to-yellow-50 cursor-crosshair"
             onMouseDown={handleCanvasMouseDown}
             style={{ cursor: activeTool === 'select' ? 'default' : 'crosshair' }}
+            data-testid="topic-editor-canvas"
           >
             {/* Overlay for mouse events */}
             <div className="canvas-overlay absolute inset-0 z-10" />
