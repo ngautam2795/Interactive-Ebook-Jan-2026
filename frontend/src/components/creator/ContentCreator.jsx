@@ -304,12 +304,12 @@ Volcanic eruptions can be explosive or effusive. Explosive eruptions blast ash a
                 className="space-y-4"
               >
                 <Tabs value={activeTab} onValueChange={setActiveTab}>
-                  <TabsList className="grid w-full grid-cols-2">
-                    <TabsTrigger value="content" className="gap-2">
+                  <TabsList className="grid w-full grid-cols-2" data-testid="creator-tabs-list">
+                    <TabsTrigger value="content" className="gap-2" data-testid="creator-tab-content">
                       <FileText className="w-4 h-4" />
                       Paste Text
                     </TabsTrigger>
-                    <TabsTrigger value="sample" className="gap-2">
+                    <TabsTrigger value="sample" className="gap-2" data-testid="creator-tab-sample">
                       <Sparkles className="w-4 h-4" />
                       Try Sample
                     </TabsTrigger>
@@ -325,6 +325,7 @@ Volcanic eruptions can be explosive or effusive. Explosive eruptions blast ash a
                         value={title}
                         onChange={(e) => setTitle(e.target.value)}
                         className="border-2 focus:border-primary"
+                        data-testid="creator-title-input"
                       />
                     </div>
 
@@ -332,23 +333,23 @@ Volcanic eruptions can be explosive or effusive. Explosive eruptions blast ash a
                     <div className="space-y-2">
                       <Label>Subject Area</Label>
                       <Select value={subject} onValueChange={setSubject}>
-                        <SelectTrigger className="border-2">
+                        <SelectTrigger className="border-2" data-testid="creator-subject-select">
                           <SelectValue placeholder="Select subject" />
                         </SelectTrigger>
                         <SelectContent>
-                          <SelectItem value="science">
+                          <SelectItem value="science" data-testid="creator-subject-option-science">
                             <div className="flex items-center gap-2">
                               <FlaskConical className="w-4 h-4 text-secondary" />
                               Science
                             </div>
                           </SelectItem>
-                          <SelectItem value="history">
+                          <SelectItem value="history" data-testid="creator-subject-option-history">
                             <div className="flex items-center gap-2">
                               <Landmark className="w-4 h-4 text-accent" />
                               History
                             </div>
                           </SelectItem>
-                          <SelectItem value="math">
+                          <SelectItem value="math" data-testid="creator-subject-option-math">
                             <div className="flex items-center gap-2">
                               <Calculator className="w-4 h-4 text-primary" />
                               Mathematics
@@ -367,6 +368,7 @@ Volcanic eruptions can be explosive or effusive. Explosive eruptions blast ash a
                         value={textContent}
                         onChange={(e) => setTextContent(e.target.value)}
                         className="min-h-[200px] font-mono text-sm border-2 focus:border-primary"
+                        data-testid="creator-content-textarea"
                       />
                       <p className="text-xs text-muted-foreground">
                         Tip: Use markdown headings (## Topic) to separate topics
@@ -401,6 +403,7 @@ Volcanic eruptions can be explosive or effusive. Explosive eruptions blast ash a
                           variant="warm" 
                           className="w-full"
                           onClick={handleUseSample}
+                          data-testid="creator-use-sample-button"
                         >
                           <Sparkles className="w-4 h-4 mr-2" />
                           Load Sample: Volcanoes
@@ -422,6 +425,7 @@ Volcanic eruptions can be explosive or effusive. Explosive eruptions blast ash a
                       className="w-full"
                       onClick={handleProcessContent}
                       disabled={isProcessing}
+                      data-testid="creator-process-button"
                     >
                       {isProcessing ? (
                         <>
@@ -438,7 +442,7 @@ Volcanic eruptions can be explosive or effusive. Explosive eruptions blast ash a
 
                     {isProcessing && (
                       <div className="mt-4 space-y-2">
-                        <Progress value={progress} className="h-2" />
+                        <Progress value={progress} className="h-2" data-testid="creator-progress-bar" />
                         <p className="text-sm text-center text-muted-foreground">
                           {progress < 30 && "Analyzing content structure..."}
                           {progress >= 30 && progress < 60 && "Extracting key concepts..."}
