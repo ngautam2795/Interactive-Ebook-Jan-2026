@@ -18,28 +18,58 @@ const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
 
 function App() {
   const [currentView, setCurrentView] = useState('home'); // 'home', 'reader'
-  const [allChapters, setAllChapters] = useState([...sampleChapters]);
+  const [savedChapters, setSavedChapters] = useState([]);
   const [showCreator, setShowCreator] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [activeChapterIndex, setActiveChapterIndex] = useState(0);
 
-  // Fetch saved chapters from backend on mount
+  // All chapters = sample + saved
+  const allChapters = [...sampleChapters, ...savedChapters];
+
+  // Fetch saved chapters from backend
   const fetchChapters = useCallback(async () => {
     try {
       setIsLoading(true);
       const response = await axios.get(`${BACKEND_URL}/api/chapters`);
-      const savedChapters = response.data || [];
+      const chapters = response.data || [];
       
-      if (savedChapters.length > 0) {
-        // Merge saved chapters with sample chapters
-        setAllChapters([...sampleChapters, ...savedChapters]);
-      }
+      // Format chapters to match expected structure
+      const formattedChapters = chapters.map(formatChapter);
+      setSavedChapters(formattedChapters);
     } catch (error) {
-      console.log('No saved chapters found or API not available');
+      console.log('No saved chapters found or API not available:', error);
     } finally {
       setIsLoading(false);
     }
   }, []);
+
+  // Format chapter from API to match expected structure
+  const formatChapter = (chapter) => ({
+    id: chapter.id,
+    title: chapter.title,
+    subject: chapter.subject,
+    description: chapter.description,
+    created_at: chapter.created_at,
+    topics: (chapter.topics || []).map(topic => ({
+      id: topic.id,
+      title: topic.title,
+      subtitle: topic.subtitle || 'Interactive Learning Content',
+      content: topic.content,
+      illustration: topic.illustration,
+      hotspots: (topic.hotspots || []).map(h => ({
+        id: h.id,
+        x: h.x,
+        y: h.y,
+        label: h.label,
+        icon: h.icon || 'sparkles',
+        color: h.color || 'primary',
+        title: h.title,
+        description: h.description,
+        funFact: h.fun_fact || h.funFact
+      })),
+      annotations: topic.annotations || []
+    }))
+  });
 
   useEffect(() => {
     fetchChapters();
@@ -67,45 +97,30 @@ function App() {
   const handleContentCreated = (chapter) => {
     console.log('Content created:', chapter);
     
-    // Format the chapter to match the expected structure
-    const formattedChapter = {
-      id: chapter.id,
-      title: chapter.title,
-      subject: chapter.subject,
-      description: chapter.description,
-      topics: (chapter.topics || []).map(topic => ({
-        id: topic.id,
-        title: topic.title,
-        subtitle: topic.subtitle || 'Interactive Learning Content',
-        content: topic.content,
-        illustration: topic.illustration,
-        hotspots: (topic.hotspots || []).map(h => ({
-          id: h.id,
-          x: h.x,
-          y: h.y,
-          label: h.label,
-          icon: h.icon || 'sparkles',
-          color: h.color || 'primary',
-          title: h.title,
-          description: h.description,
-          funFact: h.fun_fact || h.funFact
-        })),
-        annotations: topic.annotations || []
-      }))
-    };
-    
-    // Add the new chapter to the list
-    setAllChapters(prev => [...prev, formattedChapter]);
+    // Format and add the new chapter
+    const formattedChapter = formatChapter(chapter);
+    setSavedChapters(prev => [...prev, formattedChapter]);
     
     // Close creator and navigate to reader showing the new chapter
     setShowCreator(false);
     
     // Set to show the newly created chapter (last in list)
+    const newIndex = sampleChapters.length + savedChapters.length;
     setTimeout(() => {
-      setActiveChapterIndex(allChapters.length); // Will be the new chapter's index
+      setActiveChapterIndex(newIndex);
       setCurrentView('reader');
-      toast.success('Chapter created successfully!');
+      toast.success('Chapter created and saved!');
     }, 100);
+  };
+
+  const handleDeleteChapter = (chapterId) => {
+    // Remove from local state
+    setSavedChapters(prev => prev.filter(ch => ch.id !== chapterId));
+  };
+
+  const handleChaptersUpdate = (updatedChapters) => {
+    // Refresh from server to get latest data
+    fetchChapters();
   };
 
   return (
@@ -115,9 +130,11 @@ function App() {
           {currentView === 'home' && (
             <HomePage
               key="home"
-              onStartReading={() => handleStartReading(0)}
+              onStartReading={handleStartReading}
               onUploadContent={handleOpenCreator}
-              chapters={allChapters}
+              savedChapters={savedChapters}
+              onRefreshChapters={fetchChapters}
+              onDeleteChapter={handleDeleteChapter}
               isLoading={isLoading}
             />
           )}
@@ -128,6 +145,7 @@ function App() {
               onBack={handleBack}
               chapters={allChapters}
               initialChapterIndex={activeChapterIndex}
+              onChaptersUpdate={handleChaptersUpdate}
             />
           )}
         </AnimatePresence>
