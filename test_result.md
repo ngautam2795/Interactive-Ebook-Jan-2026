@@ -242,7 +242,7 @@ agent_communication:
     - agent: "testing"
     - message: "TESTING COMPLETED SUCCESSFULLY - All major features are working correctly. Homepage loads with proper branding and navigation, reader view displays interactive content with functional hotspots, table of contents shows proper chapter organization and progress tracking, content uploader allows text input and sample content loading, mobile responsiveness is excellent with touch-friendly interface. Application is ready for production use."
     - agent: "testing"
-    - message: "STARTING NEW ENHANCED FEATURES TESTING - Focusing on NEW 3-step Content Creator Modal with AI image generation, enhanced Interactive Reader features, and mobile responsiveness for new features. Testing at https://storyscape-29.preview.emergentagent.com"
+    - message: "STARTING NEW ENHANCED FEATURES TESTING - Focusing on NEW 3-step Content Creator Modal with AI image generation, enhanced Interactive Reader features, and mobile responsiveness for new features. Testing at https://topicpages.preview.emergentagent.com"
     - agent: "testing"
     - message: "ENHANCED FEATURES TESTING COMPLETED SUCCESSFULLY - All NEW features working excellently! 3-step Content Creator Modal with wizard navigation, AI Image Generation with 4 models successfully generating volcano illustrations, Enhanced Interactive Reader with 8 hotspots and detailed modals, Mobile responsiveness perfect at 390x844 viewport. The AI image generation is particularly impressive - it actually generated a high-quality educational volcano illustration! All enhanced features are production-ready."
     - agent: "testing"
