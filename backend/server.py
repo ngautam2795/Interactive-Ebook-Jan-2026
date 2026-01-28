@@ -347,7 +347,16 @@ async def create_chapter(chapter_data: ChapterCreate):
             "favorite": False
         }
         
-        result = sb.table("chapters").insert(chapter_doc).execute()
+        try:
+            result = sb.table("chapters").insert(chapter_doc).execute()
+        except Exception as insert_error:
+            error_message = str(insert_error)
+            if "favorite" in error_message.lower():
+                logger.warning("Favorite column missing in chapters table. Retrying insert without favorite.")
+                chapter_doc.pop("favorite", None)
+                result = sb.table("chapters").insert(chapter_doc).execute()
+            else:
+                raise
         
         if not result.data:
             raise HTTPException(status_code=500, detail="Failed to create chapter")
