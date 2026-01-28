@@ -477,6 +477,7 @@ Volcanic eruptions can be explosive or effusive. Explosive eruptions blast ash a
                     value={imagePrompt}
                     onChange={(e) => setImagePrompt(e.target.value)}
                     className="min-h-[100px] border-2 focus:border-primary"
+                    data-testid="creator-image-prompt-textarea"
                   />
                 </div>
 
