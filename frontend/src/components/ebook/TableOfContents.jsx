@@ -66,7 +66,7 @@ export const TableOfContents = ({
                   </p>
                 </div>
               </div>
-              <Button variant="ghost" size="icon" onClick={onClose} className="rounded-full">
+              <Button variant="ghost" size="icon" onClick={onClose} className="rounded-full" data-testid="toc-close-button">
                 <X className="w-5 h-5" />
               </Button>
             </div>
