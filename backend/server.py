@@ -18,8 +18,8 @@ ROOT_DIR = Path(__file__).parent
 load_dotenv(ROOT_DIR / '.env')
 
 # Supabase connection
-SUPABASE_URL = os.environ.get('SUPABASE_URL', '')
-SUPABASE_SERVICE_KEY = os.environ.get('SUPABASE_SERVICE_KEY', '')
+SUPABASE_URL = os.environ.get('SUPABASE_URL')
+SUPABASE_SERVICE_KEY = os.environ.get('SUPABASE_SERVICE_KEY')
 supabase: Client = None
 
 def get_supabase() -> Client:
@@ -29,7 +29,7 @@ def get_supabase() -> Client:
     return supabase
 
 # Kei.ai API configuration
-KEI_API_KEY = os.environ.get('KEI_API_KEY', '')
+KEI_API_KEY = os.environ.get('KEI_API_KEY')
 KEI_API_BASE = "https://api.kie.ai/api/v1"
 
 # Create the main app without a prefix
@@ -109,6 +109,7 @@ class Chapter(BaseModel):
     subject: str
     description: Optional[str] = None
     topics: List[Topic] = []
+    favorite: bool = False
     created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
 
 class ChapterCreate(BaseModel):
@@ -116,6 +117,9 @@ class ChapterCreate(BaseModel):
     subject: str
     description: Optional[str] = None
     content: str  # Raw content to be parsed into topics
+
+class ChapterFavoriteUpdate(BaseModel):
+    favorite: bool
 
 class TopicUpdate(BaseModel):
     title: Optional[str] = None
@@ -338,7 +342,8 @@ async def create_chapter(chapter_data: ChapterCreate):
             "id": chapter_id,
             "title": chapter_data.title,
             "subject": chapter_data.subject,
-            "description": chapter_data.description or f"Interactive chapter about {chapter_data.title}"
+            "description": chapter_data.description or f"Interactive chapter about {chapter_data.title}",
+            "favorite": False
         }
         
         result = sb.table("chapters").insert(chapter_doc).execute()
@@ -395,6 +400,7 @@ async def create_chapter(chapter_data: ChapterCreate):
             "title": chapter_data.title,
             "subject": chapter_data.subject,
             "description": chapter_data.description,
+            "favorite": False,
             "topics": topics_with_ids,
             "created_at": datetime.now(timezone.utc).isoformat()
         }
@@ -598,6 +604,23 @@ async def delete_chapter(chapter_id: str):
         
     except Exception as e:
         logger.error(f"Error deleting chapter: {str(e)}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+@api_router.put("/chapters/{chapter_id}/favorite")
+async def update_chapter_favorite(chapter_id: str, favorite_update: ChapterFavoriteUpdate):
+    """Update the favorite status of a chapter"""
+    try:
+        sb = get_supabase()
+        update_data = {
+            "favorite": favorite_update.favorite,
+            "updated_at": datetime.now(timezone.utc).isoformat()
+        }
+        result = sb.table("chapters").update(update_data).eq("id", chapter_id).execute()
+        if not result.data:
+            raise HTTPException(status_code=404, detail="Chapter not found")
+        return {"message": "Favorite updated", "favorite": favorite_update.favorite}
+    except Exception as e:
+        logger.error(f"Error updating favorite: {str(e)}")
         raise HTTPException(status_code=500, detail=str(e))
 
 def parse_content_to_topics(content: str) -> List[Topic]:
