@@ -491,6 +491,7 @@ Volcanic eruptions can be explosive or effusive. Explosive eruptions blast ash a
                     value={selectedModel} 
                     onValueChange={setSelectedModel}
                     className="grid grid-cols-2 gap-3"
+                    data-testid="creator-model-radio-group"
                   >
                     {modelOptions.map((model) => {
                       const ModelIcon = model.icon;
