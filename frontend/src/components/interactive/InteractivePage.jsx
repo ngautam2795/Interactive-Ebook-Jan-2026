@@ -111,6 +111,7 @@ export const InteractivePage = ({
         {/* Interactive Illustration */}
         <motion.div
           className={`relative rounded-2xl overflow-hidden shadow-elevated mb-6 ${getBgGradient()}`}
+          data-testid="reader-illustration-card"
           initial={{ opacity: 0, scale: 0.95 }}
           animate={{ opacity: 1, scale: 1 }}
           transition={{ delay: 0.3 }}
@@ -122,6 +123,7 @@ export const InteractivePage = ({
                 src={topic.illustration}
                 alt={topic.title}
                 className="w-full h-full object-cover"
+                data-testid="reader-illustration-image"
               />
             ) : (
               <IllustrationPlaceholder 
