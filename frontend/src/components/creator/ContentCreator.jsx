@@ -506,8 +506,9 @@ Volcanic eruptions can be explosive or effusive. Explosive eruptions blast ash a
                               : 'border-border hover:border-primary/50'
                             }
                           `}
+                          data-testid={`creator-model-${model.id}-option`}
                         >
-                          <RadioGroupItem value={model.id} id={model.id} className="mt-1" />
+                          <RadioGroupItem value={model.id} id={model.id} className="mt-1" data-testid={`creator-model-${model.id}-radio`} />
                           <div className="flex-1">
                             <div className="flex items-center gap-2">
                               <ModelIcon className="w-4 h-4 text-primary" />
