@@ -826,7 +826,7 @@ export const TopicEditor = ({
 
       {/* Edit Dialog */}
       <Dialog open={!!editDialog} onOpenChange={() => setEditDialog(null)}>
-        <DialogContent className="sm:max-w-md">
+        <DialogContent className="sm:max-w-md" data-testid="topic-editor-edit-dialog">
           <DialogHeader>
             <DialogTitle>
               Edit {editDialog?.type === 'hotspot' ? 'Hotspot' : 'Text'}
@@ -843,6 +843,7 @@ export const TopicEditor = ({
                       ...editDialog, 
                       data: { ...editDialog.data, label: e.target.value }
                     })}
+                    data-testid="topic-editor-edit-hotspot-label"
                   />
                 </div>
                 <div className="space-y-2">
@@ -854,12 +855,12 @@ export const TopicEditor = ({
                       data: { ...editDialog.data, icon: v }
                     })}
                   >
-                    <SelectTrigger>
+                    <SelectTrigger data-testid="topic-editor-edit-hotspot-icon">
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
                       {iconOptions.map(icon => (
-                        <SelectItem key={icon} value={icon} className="capitalize">{icon}</SelectItem>
+                        <SelectItem key={icon} value={icon} className="capitalize" data-testid={`topic-editor-edit-hotspot-icon-${icon}`}>{icon}</SelectItem>
                       ))}
                     </SelectContent>
                   </Select>
@@ -873,6 +874,7 @@ export const TopicEditor = ({
                     ...editDialog,
                     data: { ...editDialog.data, title: e.target.value }
                   })}
+                  data-testid="topic-editor-edit-hotspot-title"
                 />
               </div>
               <div className="space-y-2">
@@ -884,6 +886,7 @@ export const TopicEditor = ({
                     data: { ...editDialog.data, description: e.target.value }
                   })}
                   rows={3}
+                  data-testid="topic-editor-edit-hotspot-description"
                 />
               </div>
               <div className="space-y-2">
@@ -894,6 +897,7 @@ export const TopicEditor = ({
                     ...editDialog,
                     data: { ...editDialog.data, funFact: e.target.value }
                   })}
+                  data-testid="topic-editor-edit-hotspot-funfact"
                 />
               </div>
               <div className="space-y-2">
@@ -909,6 +913,7 @@ export const TopicEditor = ({
                         ...editDialog,
                         data: { ...editDialog.data, color: color.id }
                       })}
+                      data-testid={`topic-editor-edit-hotspot-color-${color.id}`}
                     />
                   ))}
                 </div>
@@ -925,6 +930,7 @@ export const TopicEditor = ({
                     ...editDialog,
                     data: { ...editDialog.data, text: e.target.value }
                   })}
+                  data-testid="topic-editor-edit-text"
                 />
               </div>
               <div className="space-y-2">
@@ -940,6 +946,7 @@ export const TopicEditor = ({
                         ...editDialog,
                         data: { ...editDialog.data, color: color.id }
                       })}
+                      data-testid={`topic-editor-edit-text-color-${color.id}`}
                     />
                   ))}
                 </div>
@@ -947,8 +954,8 @@ export const TopicEditor = ({
             </div>
           )}
           <DialogFooter>
-            <Button variant="outline" onClick={() => setEditDialog(null)}>Cancel</Button>
-            <Button variant="warm" onClick={handleSaveEdit}>
+            <Button variant="outline" onClick={() => setEditDialog(null)} data-testid="topic-editor-edit-cancel-button">Cancel</Button>
+            <Button variant="warm" onClick={handleSaveEdit} data-testid="topic-editor-edit-save-button">
               <Check className="w-4 h-4 mr-2" />
               Save Changes
             </Button>
