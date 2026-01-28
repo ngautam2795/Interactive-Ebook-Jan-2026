@@ -376,7 +376,11 @@ export const HomePage = ({
                         index={sampleChapters.length + idx}
                         onClick={() => onStartReading(sampleChapters.length + idx)}
                         onDelete={() => setDeleteConfirm(chapter)}
+                        onToggleFavorite={() => handleToggleFavorite(chapter)}
+                        isFavorite={chapter.favorite}
+                        isFavoriteUpdating={favoriteUpdatingId === chapter.id}
                         showDate
+                        dataTestIdPrefix={`library-chapter-${chapter.id}`}
                       />
                     ))}
                   </div>
