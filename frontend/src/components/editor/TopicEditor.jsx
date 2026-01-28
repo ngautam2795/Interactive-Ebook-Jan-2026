@@ -1026,6 +1026,7 @@ const EditableAnnotation = ({ annotation, isSelected, onClick, onDoubleClick }) 
       <svg
         className="absolute inset-0 w-full h-full pointer-events-none z-10"
         style={{ overflow: 'visible' }}
+        data-testid={`topic-editor-annotation-${annotation.id}`}
       >
         <defs>
           <marker
@@ -1050,6 +1051,7 @@ const EditableAnnotation = ({ annotation, isSelected, onClick, onDoubleClick }) 
           className="pointer-events-stroke cursor-pointer"
           style={{ pointerEvents: 'stroke' }}
           onClick={onClick}
+          data-testid={`topic-editor-annotation-line-${annotation.id}`}
         />
         {isSelected && (
           <>
@@ -1076,6 +1078,7 @@ const EditableAnnotation = ({ annotation, isSelected, onClick, onDoubleClick }) 
           backgroundColor: `${colorVar}20`
         }}
         onClick={onClick}
+        data-testid={`topic-editor-annotation-${annotation.id}`}
       />
     );
   }
@@ -1095,6 +1098,7 @@ const EditableAnnotation = ({ annotation, isSelected, onClick, onDoubleClick }) 
         }}
         onClick={onClick}
         onDoubleClick={onDoubleClick}
+        data-testid={`topic-editor-annotation-${annotation.id}`}
       >
         {annotation.text}
       </div>
