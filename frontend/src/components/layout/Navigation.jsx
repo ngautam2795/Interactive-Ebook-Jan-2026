@@ -19,7 +19,7 @@ export const Navigation = ({
       animate={{ y: 0 }}
       transition={{ duration: 0.3 }}
     >
-      <div className="glass border-t border-border/50">
+      <div className="glass border-t border-border/50" data-testid="reader-navigation">
         <div className="flex items-center justify-between px-4 py-3 max-w-2xl mx-auto">
           {/* Previous Button */}
           <Button
@@ -28,6 +28,7 @@ export const Navigation = ({
             onClick={onPrevious}
             disabled={!canGoPrevious}
             className="rounded-full touch-target"
+            data-testid="reader-prev-button"
           >
             <ChevronLeft className="h-6 w-6" />
           </Button>
@@ -39,6 +40,7 @@ export const Navigation = ({
               size="sm"
               onClick={onTableOfContents}
               className="rounded-full gap-2"
+              data-testid="reader-contents-button"
             >
               <List className="h-4 w-4" />
               <span className="hidden sm:inline">Contents</span>
@@ -61,6 +63,7 @@ export const Navigation = ({
                         : 'w-2 h-2 bg-muted-foreground/30'
                     }`}
                     layoutId={isActive ? "activeDot" : undefined}
+                    data-testid={`reader-page-dot-${pageIdx + 1}`}
                   />
                 );
               })}
@@ -74,6 +77,7 @@ export const Navigation = ({
             onClick={onNext}
             disabled={!canGoNext}
             className="rounded-full touch-target"
+            data-testid="reader-next-button"
           >
             <ChevronRight className="h-6 w-6" />
           </Button>
