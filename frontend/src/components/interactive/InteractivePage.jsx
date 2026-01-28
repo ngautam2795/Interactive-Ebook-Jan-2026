@@ -189,11 +189,12 @@ export const InteractivePage = ({
         {/* Content Description */}
         <motion.div
           className="content-card"
+          data-testid="reader-topic-content"
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.5 }}
         >
-          <p className="text-foreground leading-relaxed text-base sm:text-lg">
+          <p className="text-foreground leading-relaxed text-base sm:text-lg" data-testid="reader-topic-content-text">
             {topic.content}
           </p>
         </motion.div>
