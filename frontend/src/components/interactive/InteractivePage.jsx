@@ -156,7 +156,7 @@ export const InteractivePage = ({
           {/* Edit Button */}
           {onEdit && chapterId && (
             <motion.div
-              className="absolute top-4 right-4"
+              className="absolute top-4 right-4 z-30"
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               transition={{ delay: 0.5 }}
@@ -177,7 +177,7 @@ export const InteractivePage = ({
           {/* Tap hint */}
           {hotspots.length > 0 && (
             <motion.div
-              className="absolute bottom-4 left-1/2 -translate-x-1/2 flex items-center gap-2 px-4 py-2 rounded-full glass text-sm font-medium text-foreground"
+              className="absolute bottom-4 left-1/2 -translate-x-1/2 flex items-center gap-2 px-4 py-2 rounded-full glass text-sm font-medium text-foreground pointer-events-none"
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 1 }}
