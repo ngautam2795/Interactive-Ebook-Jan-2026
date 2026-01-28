@@ -265,15 +265,15 @@ export const HomePage = ({
           <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
             <div className="flex items-center justify-between mb-6">
               <TabsList className="grid w-auto grid-cols-2">
-                <TabsTrigger value="demo" className="gap-2 px-6">
+                <TabsTrigger value="demo" className="gap-2 px-6" data-testid="tab-demo-content">
                   <BookOpen className="w-4 h-4" />
                   Demo Content
                 </TabsTrigger>
-                <TabsTrigger value="library" className="gap-2 px-6">
+                <TabsTrigger value="library" className="gap-2 px-6" data-testid="tab-my-library">
                   <Library className="w-4 h-4" />
                   My Library
                   {savedChapters.length > 0 && (
-                    <Badge variant="secondary" className="ml-2 px-2 py-0.5 text-xs">
+                    <Badge variant="secondary" className="ml-2 px-2 py-0.5 text-xs" data-testid="library-count-badge">
                       {savedChapters.length}
                     </Badge>
                   )}
@@ -287,6 +287,7 @@ export const HomePage = ({
                   onClick={onRefreshChapters}
                   disabled={isLoading}
                   className="gap-2"
+                  data-testid="library-refresh-button"
                 >
                   <RefreshCw className={`w-4 h-4 ${isLoading ? 'animate-spin' : ''}`} />
                   Refresh
