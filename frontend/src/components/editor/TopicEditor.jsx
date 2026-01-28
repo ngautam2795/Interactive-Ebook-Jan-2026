@@ -17,7 +17,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '
 import { toast } from 'sonner';
 import axios from 'axios';
 
-const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
+const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL;
 
 const tools = [
   { id: 'select', icon: MousePointer, label: 'Select & Move' },
