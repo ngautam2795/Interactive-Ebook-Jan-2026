@@ -340,7 +340,7 @@ export const HomePage = ({
                       Your saved interactive chapters
                     </p>
                   </div>
-                  <Button variant="warm" onClick={onUploadContent} className="gap-2">
+                  <Button variant="warm" onClick={onUploadContent} className="gap-2" data-testid="library-create-new-button">
                     <Plus className="w-4 h-4" />
                     Create New
                   </Button>
