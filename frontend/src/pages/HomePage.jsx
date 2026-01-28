@@ -546,7 +546,23 @@ const ChapterCard = ({
     >
       <Card 
         className="group cursor-pointer h-full border-0 shadow-soft hover:shadow-elevated transition-all duration-300 overflow-hidden relative"
+        data-testid={`${dataTestIdPrefix}-card`}
       >
+        {onToggleFavorite && (
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={(e) => {
+              e.stopPropagation();
+              onToggleFavorite();
+            }}
+            disabled={isFavoriteUpdating}
+            className="absolute top-2 left-2 z-10 opacity-0 group-hover:opacity-100 transition-opacity bg-white/80 hover:bg-yellow-100 rounded-full w-8 h-8"
+            data-testid={`${dataTestIdPrefix}-favorite-button`}
+          >
+            <Star className={`w-4 h-4 ${isFavorite ? 'text-yellow-500' : 'text-muted-foreground'}`} fill={isFavorite ? 'currentColor' : 'none'} />
+          </Button>
+        )}
         {/* Delete button */}
         {onDelete && (
           <Button
@@ -557,12 +573,13 @@ const ChapterCard = ({
               onDelete();
             }}
             className="absolute top-2 right-2 z-10 opacity-0 group-hover:opacity-100 transition-opacity bg-white/80 hover:bg-destructive hover:text-destructive-foreground rounded-full w-8 h-8"
+            data-testid={`${dataTestIdPrefix}-delete-button`}
           >
             <Trash2 className="w-4 h-4" />
           </Button>
         )}
 
-        <div onClick={onClick}>
+        <div onClick={onClick} data-testid={`${dataTestIdPrefix}-open-button`}>
           {/* Header with gradient */}
           <div className={`h-32 bg-gradient-to-br ${gradientClass} relative overflow-hidden`}>
             {chapter.topics?.[0]?.illustration ? (
