@@ -4,8 +4,8 @@ import logging
 
 logger = logging.getLogger(__name__)
 
-SUPABASE_URL = os.environ.get('SUPABASE_URL', '')
-SUPABASE_SERVICE_KEY = os.environ.get('SUPABASE_SERVICE_KEY', '')
+SUPABASE_URL = os.environ.get('SUPABASE_URL')
+SUPABASE_SERVICE_KEY = os.environ.get('SUPABASE_SERVICE_KEY')
 
 supabase: Client = None
 
@@ -25,6 +25,7 @@ CREATE TABLE IF NOT EXISTS chapters (
     title TEXT NOT NULL,
     subject TEXT NOT NULL,
     description TEXT,
+    favorite BOOLEAN DEFAULT FALSE,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
     updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
