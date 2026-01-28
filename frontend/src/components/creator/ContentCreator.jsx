@@ -230,6 +230,7 @@ Volcanic eruptions can be explosive or effusive. Explosive eruptions blast ash a
   return (
     <motion.div
       className="fixed inset-0 z-50 flex items-center justify-center p-4"
+      data-testid="content-creator-modal"
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
@@ -238,6 +239,7 @@ Volcanic eruptions can be explosive or effusive. Explosive eruptions blast ash a
       <div 
         className="absolute inset-0 bg-foreground/50 backdrop-blur-sm"
         onClick={onClose}
+        data-testid="content-creator-backdrop"
       />
 
       {/* Modal */}
@@ -262,7 +264,7 @@ Volcanic eruptions can be explosive or effusive. Explosive eruptions blast ash a
               </p>
             </div>
           </div>
-          <Button variant="ghost" size="icon" onClick={onClose} className="rounded-full">
+          <Button variant="ghost" size="icon" onClick={onClose} className="rounded-full" data-testid="content-creator-close-button">
             <X className="w-5 h-5" />
           </Button>
         </div>
