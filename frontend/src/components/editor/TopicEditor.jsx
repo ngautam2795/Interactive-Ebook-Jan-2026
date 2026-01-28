@@ -692,7 +692,7 @@ export const TopicEditor = ({
 
       {/* Add Hotspot Dialog */}
       <Dialog open={!!hotspotDialog} onOpenChange={() => setHotspotDialog(null)}>
-        <DialogContent className="sm:max-w-md">
+        <DialogContent className="sm:max-w-md" data-testid="topic-editor-add-hotspot-dialog">
           <DialogHeader>
             <DialogTitle>Add Hotspot</DialogTitle>
           </DialogHeader>
@@ -705,6 +705,7 @@ export const TopicEditor = ({
                     value={hotspotDialog.label}
                     onChange={(e) => setHotspotDialog({ ...hotspotDialog, label: e.target.value })}
                     placeholder="e.g., Sunlight"
+                    data-testid="topic-editor-hotspot-label-input"
                   />
                 </div>
                 <div className="space-y-2">
@@ -713,12 +714,12 @@ export const TopicEditor = ({
                     value={hotspotDialog.icon} 
                     onValueChange={(v) => setHotspotDialog({ ...hotspotDialog, icon: v })}
                   >
-                    <SelectTrigger>
+                    <SelectTrigger data-testid="topic-editor-hotspot-icon-select">
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
                       {iconOptions.map(icon => (
-                        <SelectItem key={icon} value={icon} className="capitalize">{icon}</SelectItem>
+                        <SelectItem key={icon} value={icon} className="capitalize" data-testid={`topic-editor-hotspot-icon-${icon}`}>{icon}</SelectItem>
                       ))}
                     </SelectContent>
                   </Select>
@@ -730,6 +731,7 @@ export const TopicEditor = ({
                   value={hotspotDialog.title}
                   onChange={(e) => setHotspotDialog({ ...hotspotDialog, title: e.target.value })}
                   placeholder="e.g., Light Energy"
+                  data-testid="topic-editor-hotspot-title-input"
                 />
               </div>
               <div className="space-y-2">
@@ -739,6 +741,7 @@ export const TopicEditor = ({
                   onChange={(e) => setHotspotDialog({ ...hotspotDialog, description: e.target.value })}
                   placeholder="Explain this concept..."
                   rows={3}
+                  data-testid="topic-editor-hotspot-description-input"
                 />
               </div>
               <div className="space-y-2">
@@ -747,6 +750,7 @@ export const TopicEditor = ({
                   value={hotspotDialog.funFact}
                   onChange={(e) => setHotspotDialog({ ...hotspotDialog, funFact: e.target.value })}
                   placeholder="Did you know..."
+                  data-testid="topic-editor-hotspot-funfact-input"
                 />
               </div>
               <div className="space-y-2">
@@ -759,6 +763,7 @@ export const TopicEditor = ({
                         hotspotDialog.color === color.id ? 'border-foreground scale-110' : 'border-transparent'
                       }`}
                       onClick={() => setHotspotDialog({ ...hotspotDialog, color: color.id })}
+                      data-testid={`topic-editor-hotspot-color-${color.id}`}
                     />
                   ))}
                 </div>
@@ -766,8 +771,8 @@ export const TopicEditor = ({
             </div>
           )}
           <DialogFooter>
-            <Button variant="outline" onClick={() => setHotspotDialog(null)}>Cancel</Button>
-            <Button variant="warm" onClick={handleAddHotspot}>
+            <Button variant="outline" onClick={() => setHotspotDialog(null)} data-testid="topic-editor-hotspot-cancel-button">Cancel</Button>
+            <Button variant="warm" onClick={handleAddHotspot} data-testid="topic-editor-hotspot-add-button">
               <Plus className="w-4 h-4 mr-2" />
               Add Hotspot
             </Button>
