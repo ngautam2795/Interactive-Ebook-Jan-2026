@@ -43,11 +43,13 @@ export const HomePage = ({
   savedChapters = [],
   onRefreshChapters,
   onDeleteChapter,
+  onToggleFavorite,
   isLoading = false
 }) => {
   const [activeTab, setActiveTab] = useState('demo');
   const [deleteConfirm, setDeleteConfirm] = useState(null);
   const [isDeleting, setIsDeleting] = useState(false);
+  const [favoriteUpdatingId, setFavoriteUpdatingId] = useState(null);
 
   const stats = [
     { icon: BookOpen, value: String(sampleChapters.length + savedChapters.length), label: 'Chapters' },
