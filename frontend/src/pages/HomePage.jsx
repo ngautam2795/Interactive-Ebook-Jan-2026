@@ -175,6 +175,7 @@ export const HomePage = ({
                   size="xl"
                   onClick={() => onStartReading(0)}
                   className="gap-2"
+                  data-testid="hero-explore-demo-button"
                 >
                   <Play className="w-5 h-5" />
                   Explore Demo
@@ -184,6 +185,7 @@ export const HomePage = ({
                   size="xl"
                   onClick={onUploadContent}
                   className="gap-2"
+                  data-testid="hero-create-content-button"
                 >
                   <Plus className="w-5 h-5" />
                   Create Content
