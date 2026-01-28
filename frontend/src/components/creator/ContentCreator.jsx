@@ -534,12 +534,12 @@ Volcanic eruptions can be explosive or effusive. Explosive eruptions blast ash a
                 <div className="space-y-2">
                   <Label>Aspect Ratio</Label>
                   <Select value={aspectRatio} onValueChange={setAspectRatio}>
-                    <SelectTrigger className="border-2">
+                    <SelectTrigger className="border-2" data-testid="creator-aspect-ratio-select">
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
                       {aspectRatios.map((ratio) => (
-                        <SelectItem key={ratio.value} value={ratio.value}>
+                        <SelectItem key={ratio.value} value={ratio.value} data-testid={`creator-aspect-ratio-${ratio.value.replace(':', '-')}`}>
                           {ratio.label}
                         </SelectItem>
                       ))}
