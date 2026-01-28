@@ -558,7 +558,7 @@ Volcanic eruptions can be explosive or effusive. Explosive eruptions blast ash a
                       <Check className="w-4 h-4" />
                       Generated Image
                     </Label>
-                    <div className="rounded-xl overflow-hidden border-2 border-success">
+                    <div className="rounded-xl overflow-hidden border-2 border-success" data-testid="creator-generated-image">
                       <img 
                         src={generatedImageUrl} 
                         alt="Generated illustration"
@@ -570,7 +570,7 @@ Volcanic eruptions can be explosive or effusive. Explosive eruptions blast ash a
 
                 {/* Error Message */}
                 {imageError && (
-                  <div className="p-3 rounded-lg bg-destructive/10 text-destructive text-sm">
+                  <div className="p-3 rounded-lg bg-destructive/10 text-destructive text-sm" data-testid="creator-image-error">
                     {imageError}
                   </div>
                 )}
