@@ -630,8 +630,15 @@ async def update_chapter_favorite(chapter_id: str, favorite_update: ChapterFavor
             raise HTTPException(status_code=404, detail="Chapter not found")
         return {"message": "Favorite updated", "favorite": favorite_update.favorite}
     except Exception as e:
-        logger.error(f"Error updating favorite: {str(e)}")
-        raise HTTPException(status_code=500, detail=str(e))
+        error_message = str(e)
+        if "favorite" in error_message.lower():
+            logger.error("Favorite column missing in chapters table")
+            raise HTTPException(
+                status_code=500,
+                detail="Favorite column missing in chapters table. Run: ALTER TABLE chapters ADD COLUMN IF NOT EXISTS favorite BOOLEAN DEFAULT FALSE;"
+            )
+        logger.error(f"Error updating favorite: {error_message}")
+        raise HTTPException(status_code=500, detail=error_message)
 
 def parse_content_to_topics(content: str) -> List[Topic]:
     """Parse raw educational content into topics"""
