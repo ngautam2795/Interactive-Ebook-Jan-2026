@@ -596,12 +596,17 @@ const ChapterCard = ({
             <div className="absolute inset-0 bg-gradient-to-t from-black/30 to-transparent" />
             
             <div className="absolute top-3 left-3 flex gap-2">
-              <Badge className="bg-white/20 text-white border-0 backdrop-blur-sm capitalize">
+              <Badge className="bg-white/20 text-white border-0 backdrop-blur-sm capitalize" data-testid={`${dataTestIdPrefix}-subject-badge`}>
                 {chapter.subject}
               </Badge>
               {isDemo && (
-                <Badge className="bg-white/20 text-white border-0 backdrop-blur-sm">
+                <Badge className="bg-white/20 text-white border-0 backdrop-blur-sm" data-testid={`${dataTestIdPrefix}-demo-badge`}>
                   Demo
+                </Badge>
+              )}
+              {!isDemo && isFavorite && (
+                <Badge className="bg-white/20 text-white border-0 backdrop-blur-sm" data-testid={`${dataTestIdPrefix}-favorite-badge`}>
+                  Favorite
                 </Badge>
               )}
             </div>
