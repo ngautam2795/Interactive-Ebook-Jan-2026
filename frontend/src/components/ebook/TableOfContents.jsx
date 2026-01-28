@@ -74,10 +74,10 @@ export const TableOfContents = ({
             {/* Progress */}
             <div className="px-4 py-3 border-b border-border">
               <div className="flex items-center justify-between mb-2">
-                <span className="text-sm font-medium text-foreground">Your Progress</span>
-                <span className="text-sm font-bold text-primary">{Math.round(progressPercentage)}%</span>
+                <span className="text-sm font-medium text-foreground" data-testid="toc-progress-label">Your Progress</span>
+                <span className="text-sm font-bold text-primary" data-testid="toc-progress-value">{Math.round(progressPercentage)}%</span>
               </div>
-              <Progress value={progressPercentage} className="h-2" />
+              <Progress value={progressPercentage} className="h-2" data-testid="toc-progress-bar" />
             </div>
 
             {/* Chapters List */}
