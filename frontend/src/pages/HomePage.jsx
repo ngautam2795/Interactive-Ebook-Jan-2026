@@ -1,13 +1,29 @@
-import React, { useState } from 'react';
-import { motion } from 'framer-motion';
+import React, { useState, useEffect, useCallback } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 import { 
   BookOpen, Sparkles, Upload, FlaskConical, Landmark, Calculator,
-  ArrowRight, Star, Users, Award, ChevronRight, Play
+  ArrowRight, Star, Users, Award, ChevronRight, Play, Trash2,
+  Library, Plus, RefreshCw, AlertTriangle, Clock, Layers
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { sampleChapters, getSubjectColor } from '@/data/sampleContent';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { 
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog';
+import { toast } from 'sonner';
+import { sampleChapters } from '@/data/sampleContent';
+import axios from 'axios';
+
+const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
 
 const subjectIcons = {
   science: FlaskConical,
@@ -21,11 +37,20 @@ const subjectGradients = {
   math: 'from-blue-500 to-indigo-500'
 };
 
-export const HomePage = ({ onStartReading, onUploadContent }) => {
-  const [selectedSubject, setSelectedSubject] = useState(null);
+export const HomePage = ({ 
+  onStartReading, 
+  onUploadContent,
+  savedChapters = [],
+  onRefreshChapters,
+  onDeleteChapter,
+  isLoading = false
+}) => {
+  const [activeTab, setActiveTab] = useState('demo');
+  const [deleteConfirm, setDeleteConfirm] = useState(null);
+  const [isDeleting, setIsDeleting] = useState(false);
 
   const stats = [
-    { icon: BookOpen, value: '4', label: 'Chapters' },
+    { icon: BookOpen, value: String(sampleChapters.length + savedChapters.length), label: 'Chapters' },
     { icon: Star, value: '20+', label: 'Concepts' },
     { icon: Users, value: 'All Ages', label: 'Suitable For' }
   ];
@@ -48,6 +73,33 @@ export const HomePage = ({ onStartReading, onUploadContent }) => {
     }
   ];
 
+  const handleDeleteChapter = async () => {
+    if (!deleteConfirm) return;
+    
+    setIsDeleting(true);
+    try {
+      await axios.delete(`${BACKEND_URL}/api/chapters/${deleteConfirm.id}`);
+      toast.success('Chapter deleted successfully');
+      onDeleteChapter?.(deleteConfirm.id);
+    } catch (error) {
+      console.error('Delete error:', error);
+      toast.error('Failed to delete chapter');
+    } finally {
+      setIsDeleting(false);
+      setDeleteConfirm(null);
+    }
+  };
+
+  const formatDate = (dateString) => {
+    if (!dateString) return '';
+    const date = new Date(dateString);
+    return date.toLocaleDateString('en-US', { 
+      month: 'short', 
+      day: 'numeric',
+      year: 'numeric'
+    });
+  };
+
   return (
     <div className="min-h-screen bg-background">
       {/* Hero Section */}
@@ -59,7 +111,7 @@ export const HomePage = ({ onStartReading, onUploadContent }) => {
           <div className="absolute bottom-0 right-20 w-40 h-40 rounded-full bg-accent/10 blur-2xl" />
         </div>
 
-        <div className="relative max-w-6xl mx-auto px-4 pt-8 pb-16 sm:pt-12 sm:pb-24">
+        <div className="relative max-w-6xl mx-auto px-4 pt-8 pb-12 sm:pt-12 sm:pb-16">
           {/* Logo */}
           <motion.div
             className="flex items-center gap-3 mb-8"
@@ -101,7 +153,7 @@ export const HomePage = ({ onStartReading, onUploadContent }) => {
                 <Button
                   variant="warm"
                   size="xl"
-                  onClick={onStartReading}
+                  onClick={() => onStartReading(0)}
                   className="gap-2"
                 >
                   <Play className="w-5 h-5" />
@@ -113,8 +165,8 @@ export const HomePage = ({ onStartReading, onUploadContent }) => {
                   onClick={onUploadContent}
                   className="gap-2"
                 >
-                  <Upload className="w-5 h-5" />
-                  Upload Content
+                  <Plus className="w-5 h-5" />
+                  Create Content
                 </Button>
               </div>
 
@@ -144,13 +196,12 @@ export const HomePage = ({ onStartReading, onUploadContent }) => {
 
             {/* Hero Illustration */}
             <motion.div
-              className="relative"
+              className="relative hidden lg:block"
               initial={{ opacity: 0, scale: 0.9 }}
               animate={{ opacity: 1, scale: 1 }}
               transition={{ delay: 0.2 }}
             >
               <div className="relative aspect-square max-w-md mx-auto">
-                {/* Main illustration card */}
                 <div className="absolute inset-0 rounded-3xl bg-gradient-to-br from-primary/20 via-accent/10 to-secondary/20 shadow-elevated overflow-hidden">
                   <img
                     src="https://customer-assets.emergentagent.com/job_storyscape-29/artifacts/hffdaa1p_Infogrph%20photosynthesis.jpg"
@@ -180,43 +231,140 @@ export const HomePage = ({ onStartReading, onUploadContent }) => {
                     </motion.div>
                   ))}
                 </div>
-
-                {/* Floating feature cards */}
-                <motion.div
-                  className="absolute -bottom-4 -left-4 sm:-left-8 glass rounded-xl p-3 shadow-medium"
-                  initial={{ opacity: 0, x: -20 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  transition={{ delay: 1 }}
-                >
-                  <div className="flex items-center gap-2">
-                    <div className="w-8 h-8 rounded-lg bg-secondary/20 flex items-center justify-center">
-                      <Sparkles className="w-4 h-4 text-secondary" />
-                    </div>
-                    <span className="text-sm font-medium text-foreground">Tap to Learn</span>
-                  </div>
-                </motion.div>
-
-                <motion.div
-                  className="absolute -top-4 -right-4 sm:-right-8 glass rounded-xl p-3 shadow-medium"
-                  initial={{ opacity: 0, x: 20 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  transition={{ delay: 1.2 }}
-                >
-                  <div className="flex items-center gap-2">
-                    <div className="w-8 h-8 rounded-lg bg-accent/20 flex items-center justify-center">
-                      <Award className="w-4 h-4 text-accent" />
-                    </div>
-                    <span className="text-sm font-medium text-foreground">Track Progress</span>
-                  </div>
-                </motion.div>
               </div>
             </motion.div>
           </div>
         </div>
       </section>
 
+      {/* Content Tabs Section */}
+      <section className="py-12 bg-muted/30">
+        <div className="max-w-6xl mx-auto px-4">
+          <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+            <div className="flex items-center justify-between mb-6">
+              <TabsList className="grid w-auto grid-cols-2">
+                <TabsTrigger value="demo" className="gap-2 px-6">
+                  <BookOpen className="w-4 h-4" />
+                  Demo Content
+                </TabsTrigger>
+                <TabsTrigger value="library" className="gap-2 px-6">
+                  <Library className="w-4 h-4" />
+                  My Library
+                  {savedChapters.length > 0 && (
+                    <Badge variant="secondary" className="ml-2 px-2 py-0.5 text-xs">
+                      {savedChapters.length}
+                    </Badge>
+                  )}
+                </TabsTrigger>
+              </TabsList>
+
+              {activeTab === 'library' && (
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={onRefreshChapters}
+                  disabled={isLoading}
+                  className="gap-2"
+                >
+                  <RefreshCw className={`w-4 h-4 ${isLoading ? 'animate-spin' : ''}`} />
+                  Refresh
+                </Button>
+              )}
+            </div>
+
+            {/* Demo Content Tab */}
+            <TabsContent value="demo">
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+              >
+                <div className="mb-6">
+                  <h2 className="font-display font-bold text-2xl text-foreground mb-2">
+                    Sample Chapters
+                  </h2>
+                  <p className="text-muted-foreground">
+                    Explore our pre-built interactive content
+                  </p>
+                </div>
+
+                <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
+                  {sampleChapters.map((chapter, idx) => (
+                    <ChapterCard
+                      key={chapter.id}
+                      chapter={chapter}
+                      index={idx}
+                      onClick={() => onStartReading(idx)}
+                      isDemo
+                    />
+                  ))}
+                </div>
+              </motion.div>
+            </TabsContent>
+
+            {/* My Library Tab */}
+            <TabsContent value="library">
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+              >
+                <div className="flex items-center justify-between mb-6">
+                  <div>
+                    <h2 className="font-display font-bold text-2xl text-foreground mb-2">
+                      My Created Content
+                    </h2>
+                    <p className="text-muted-foreground">
+                      Your saved interactive chapters
+                    </p>
+                  </div>
+                  <Button variant="warm" onClick={onUploadContent} className="gap-2">
+                    <Plus className="w-4 h-4" />
+                    Create New
+                  </Button>
+                </div>
+
+                {isLoading ? (
+                  <div className="flex items-center justify-center py-16">
+                    <RefreshCw className="w-8 h-8 text-primary animate-spin" />
+                  </div>
+                ) : savedChapters.length === 0 ? (
+                  <Card className="border-2 border-dashed border-muted">
+                    <CardContent className="flex flex-col items-center justify-center py-16">
+                      <Library className="w-16 h-16 text-muted-foreground/50 mb-4" />
+                      <h3 className="font-display font-bold text-xl text-foreground mb-2">
+                        No saved content yet
+                      </h3>
+                      <p className="text-muted-foreground text-center max-w-md mb-6">
+                        Create your first interactive chapter by uploading educational content. 
+                        Our AI will generate beautiful illustrations and interactive elements.
+                      </p>
+                      <Button variant="warm" onClick={onUploadContent} className="gap-2">
+                        <Plus className="w-4 h-4" />
+                        Create Your First Chapter
+                      </Button>
+                    </CardContent>
+                  </Card>
+                ) : (
+                  <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                    {savedChapters.map((chapter, idx) => (
+                      <ChapterCard
+                        key={chapter.id}
+                        chapter={chapter}
+                        index={sampleChapters.length + idx}
+                        onClick={() => onStartReading(sampleChapters.length + idx)}
+                        onDelete={() => setDeleteConfirm(chapter)}
+                        showDate
+                      />
+                    ))}
+                  </div>
+                )}
+              </motion.div>
+            </TabsContent>
+          </Tabs>
+        </div>
+      </section>
+
       {/* Features Section */}
-      <section className="py-16 bg-muted/30">
+      <section className="py-16">
         <div className="max-w-6xl mx-auto px-4">
           <motion.div
             className="text-center mb-12"
@@ -260,79 +408,6 @@ export const HomePage = ({ onStartReading, onUploadContent }) => {
         </div>
       </section>
 
-      {/* Chapters Section */}
-      <section className="py-16">
-        <div className="max-w-6xl mx-auto px-4">
-          <motion.div
-            className="flex items-center justify-between mb-8"
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-          >
-            <div>
-              <h2 className="font-display font-bold text-3xl text-foreground mb-2">
-                Available Chapters
-              </h2>
-              <p className="text-muted-foreground">
-                Start exploring our interactive content
-              </p>
-            </div>
-            <Button variant="ghost" className="hidden sm:flex gap-2">
-              View All
-              <ChevronRight className="w-4 h-4" />
-            </Button>
-          </motion.div>
-
-          <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
-            {sampleChapters.map((chapter, idx) => {
-              const SubjectIcon = subjectIcons[chapter.subject] || BookOpen;
-              const gradientClass = subjectGradients[chapter.subject] || 'from-primary to-accent';
-              
-              return (
-                <motion.div
-                  key={chapter.id}
-                  initial={{ opacity: 0, y: 20 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  viewport={{ once: true }}
-                  transition={{ delay: idx * 0.1 }}
-                >
-                  <Card 
-                    className="group cursor-pointer h-full border-0 shadow-soft hover:shadow-elevated transition-all duration-300 overflow-hidden"
-                    onClick={onStartReading}
-                  >
-                    {/* Header with gradient */}
-                    <div className={`h-32 bg-gradient-to-br ${gradientClass} relative overflow-hidden`}>
-                      <div className="absolute inset-0 flex items-center justify-center">
-                        <SubjectIcon className="w-16 h-16 text-white/30" />
-                      </div>
-                      <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent" />
-                      <Badge className="absolute top-3 left-3 bg-white/20 text-white border-0 backdrop-blur-sm capitalize">
-                        {chapter.subject}
-                      </Badge>
-                    </div>
-                    
-                    <CardContent className="p-4">
-                      <h3 className="font-display font-bold text-foreground mb-1 group-hover:text-primary transition-colors line-clamp-2">
-                        {chapter.title}
-                      </h3>
-                      <p className="text-sm text-muted-foreground mb-3 line-clamp-2">
-                        {chapter.description}
-                      </p>
-                      <div className="flex items-center justify-between">
-                        <span className="text-xs text-muted-foreground">
-                          {chapter.topics.length} topic{chapter.topics.length > 1 ? 's' : ''}
-                        </span>
-                        <ArrowRight className="w-4 h-4 text-muted-foreground group-hover:text-primary group-hover:translate-x-1 transition-all" />
-                      </div>
-                    </CardContent>
-                  </Card>
-                </motion.div>
-              );
-            })}
-          </div>
-        </div>
-      </section>
-
       {/* CTA Section */}
       <section className="py-16 bg-gradient-to-br from-primary/5 via-accent/5 to-secondary/5">
         <div className="max-w-4xl mx-auto px-4 text-center">
@@ -349,12 +424,12 @@ export const HomePage = ({ onStartReading, onUploadContent }) => {
               to create custom learning experiences.
             </p>
             <div className="flex flex-wrap justify-center gap-4">
-              <Button variant="warm" size="xl" onClick={onStartReading} className="gap-2">
+              <Button variant="warm" size="xl" onClick={() => onStartReading(0)} className="gap-2">
                 <Play className="w-5 h-5" />
                 Start Demo
               </Button>
               <Button variant="outline" size="xl" onClick={onUploadContent} className="gap-2">
-                <Upload className="w-5 h-5" />
+                <Plus className="w-5 h-5" />
                 Create Your Own
               </Button>
             </div>
@@ -378,7 +453,130 @@ export const HomePage = ({ onStartReading, onUploadContent }) => {
           </div>
         </div>
       </footer>
+
+      {/* Delete Confirmation Dialog */}
+      <AlertDialog open={!!deleteConfirm} onOpenChange={() => setDeleteConfirm(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle className="flex items-center gap-2">
+              <AlertTriangle className="w-5 h-5 text-destructive" />
+              Delete Chapter?
+            </AlertDialogTitle>
+            <AlertDialogDescription>
+              Are you sure you want to delete "{deleteConfirm?.title}"? 
+              This will permanently remove the chapter and all its topics, hotspots, and annotations.
+              This action cannot be undone.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={isDeleting}>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={handleDeleteChapter}
+              disabled={isDeleting}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            >
+              {isDeleting ? 'Deleting...' : 'Delete Chapter'}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
+  );
+};
+
+// Chapter Card Component
+const ChapterCard = ({ chapter, index, onClick, onDelete, isDemo = false, showDate = false }) => {
+  const SubjectIcon = subjectIcons[chapter.subject] || BookOpen;
+  const gradientClass = subjectGradients[chapter.subject] || 'from-primary to-accent';
+  const topicCount = chapter.topics?.length || 0;
+  
+  const formatDate = (dateString) => {
+    if (!dateString) return '';
+    const date = new Date(dateString);
+    return date.toLocaleDateString('en-US', { 
+      month: 'short', 
+      day: 'numeric'
+    });
+  };
+  
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ delay: index * 0.05 }}
+    >
+      <Card 
+        className="group cursor-pointer h-full border-0 shadow-soft hover:shadow-elevated transition-all duration-300 overflow-hidden relative"
+      >
+        {/* Delete button */}
+        {onDelete && (
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={(e) => {
+              e.stopPropagation();
+              onDelete();
+            }}
+            className="absolute top-2 right-2 z-10 opacity-0 group-hover:opacity-100 transition-opacity bg-white/80 hover:bg-destructive hover:text-destructive-foreground rounded-full w-8 h-8"
+          >
+            <Trash2 className="w-4 h-4" />
+          </Button>
+        )}
+
+        <div onClick={onClick}>
+          {/* Header with gradient */}
+          <div className={`h-32 bg-gradient-to-br ${gradientClass} relative overflow-hidden`}>
+            {chapter.topics?.[0]?.illustration ? (
+              <img 
+                src={chapter.topics[0].illustration} 
+                alt={chapter.title}
+                className="w-full h-full object-cover opacity-80"
+              />
+            ) : (
+              <div className="absolute inset-0 flex items-center justify-center">
+                <SubjectIcon className="w-16 h-16 text-white/30" />
+              </div>
+            )}
+            <div className="absolute inset-0 bg-gradient-to-t from-black/30 to-transparent" />
+            
+            <div className="absolute top-3 left-3 flex gap-2">
+              <Badge className="bg-white/20 text-white border-0 backdrop-blur-sm capitalize">
+                {chapter.subject}
+              </Badge>
+              {isDemo && (
+                <Badge className="bg-white/20 text-white border-0 backdrop-blur-sm">
+                  Demo
+                </Badge>
+              )}
+            </div>
+          </div>
+          
+          <CardContent className="p-4">
+            <h3 className="font-display font-bold text-foreground mb-1 group-hover:text-primary transition-colors line-clamp-2">
+              {chapter.title}
+            </h3>
+            <p className="text-sm text-muted-foreground mb-3 line-clamp-2">
+              {chapter.description || `Interactive ${chapter.subject} content`}
+            </p>
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-3 text-xs text-muted-foreground">
+                <span className="flex items-center gap-1">
+                  <Layers className="w-3 h-3" />
+                  {topicCount} topic{topicCount !== 1 ? 's' : ''}
+                </span>
+                {showDate && chapter.created_at && (
+                  <span className="flex items-center gap-1">
+                    <Clock className="w-3 h-3" />
+                    {formatDate(chapter.created_at)}
+                  </span>
+                )}
+              </div>
+              <ArrowRight className="w-4 h-4 text-muted-foreground group-hover:text-primary group-hover:translate-x-1 transition-all" />
+            </div>
+          </CardContent>
+        </div>
+      </Card>
+    </motion.div>
   );
 };
 
