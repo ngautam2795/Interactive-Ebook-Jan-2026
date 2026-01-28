@@ -975,6 +975,7 @@ const DraggableHotspot = ({ hotspot, isSelected, onMouseDown, onClick, onDoubleC
       onMouseDown={onMouseDown}
       onClick={onClick}
       onDoubleClick={onDoubleClick}
+      data-testid={`topic-editor-hotspot-${hotspot.id}`}
     >
       {/* Selection ring */}
       {isSelected && (
@@ -1003,12 +1004,13 @@ const DraggableHotspot = ({ hotspot, isSelected, onMouseDown, onClick, onDoubleC
           ${isSelected ? 'ring-primary ring-offset-2' : ''}
         `}
         style={{ backgroundColor: `hsl(var(--${hotspot.color || 'primary'}))` }}
+        data-testid={`topic-editor-hotspot-badge-${hotspot.id}`}
       >
         <span className="text-white text-xs font-bold">{hotspot.label?.charAt(0) || '?'}</span>
       </div>
       
       {/* Label */}
-      <div className="absolute left-1/2 -translate-x-1/2 mt-1 px-2 py-0.5 rounded bg-foreground/80 text-background text-[10px] font-medium whitespace-nowrap">
+      <div className="absolute left-1/2 -translate-x-1/2 mt-1 px-2 py-0.5 rounded bg-foreground/80 text-background text-[10px] font-medium whitespace-nowrap" data-testid={`topic-editor-hotspot-label-${hotspot.id}`}>
         {hotspot.label}
       </div>
     </motion.div>
