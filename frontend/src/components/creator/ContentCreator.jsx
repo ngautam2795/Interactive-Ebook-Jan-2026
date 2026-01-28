@@ -662,6 +662,7 @@ Volcanic eruptions can be explosive or effusive. Explosive eruptions blast ash a
                           src={generatedImageUrl} 
                           alt="Chapter illustration"
                           className="w-full h-32 object-cover"
+                          data-testid="creator-preview-image"
                         />
                       </div>
                     )}
