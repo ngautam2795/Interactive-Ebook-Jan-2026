@@ -98,6 +98,7 @@ export const Hotspot = ({
     <motion.div
       className="absolute z-20"
       style={{ left: `${x}%`, top: `${y}%` }}
+      data-testid={`hotspot-container-${id}`}
       initial={{ opacity: 0, scale: 0 }}
       animate={{ opacity: 1, scale: 1 }}
       transition={{ 
@@ -137,6 +138,7 @@ export const Hotspot = ({
         onHoverEnd={() => setIsHovered(false)}
         onClick={() => onActivate?.(id)}
         aria-label={`Learn about ${label}`}
+        data-testid={`hotspot-button-${id}`}
       >
         <IconComponent className="w-5 h-5 text-white" />
         
@@ -190,6 +192,7 @@ export const HotspotModal = ({
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             onClick={onClose}
+            data-testid="hotspot-modal-backdrop"
           />
           
           {/* Modal */}
@@ -199,6 +202,7 @@ export const HotspotModal = ({
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 100, scale: 0.9 }}
             transition={{ type: "spring", damping: 25, stiffness: 300 }}
+            data-testid="hotspot-modal"
           >
             <Card className="overflow-hidden shadow-elevated border-0">
               {/* Header with icon */}
@@ -217,6 +221,7 @@ export const HotspotModal = ({
                     size="iconSm"
                     onClick={onClose}
                     className="rounded-full text-white hover:bg-white/20"
+                    data-testid="hotspot-modal-close-button"
                   >
                     <X className="w-5 h-5" />
                   </Button>
