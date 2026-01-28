@@ -513,7 +513,18 @@ export const HomePage = ({
 };
 
 // Chapter Card Component
-const ChapterCard = ({ chapter, index, onClick, onDelete, isDemo = false, showDate = false }) => {
+const ChapterCard = ({
+  chapter,
+  index,
+  onClick,
+  onDelete,
+  onToggleFavorite,
+  isFavorite = false,
+  isFavoriteUpdating = false,
+  isDemo = false,
+  showDate = false,
+  dataTestIdPrefix = 'chapter-card'
+}) => {
   const SubjectIcon = subjectIcons[chapter.subject] || BookOpen;
   const gradientClass = subjectGradients[chapter.subject] || 'from-primary to-accent';
   const topicCount = chapter.topics?.length || 0;
