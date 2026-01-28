@@ -6,7 +6,7 @@ import { InteractivePage } from '@/components/interactive/InteractivePage';
 import { TableOfContents } from './TableOfContents';
 import { TopicEditor } from '@/components/editor/TopicEditor';
 
-export const EbookReader = ({ onBack, chapters = [], initialChapterIndex = 0, onChaptersUpdate }) => {
+export const EbookReader = ({ onBack, onGoLibrary, chapters = [], initialChapterIndex = 0, onChaptersUpdate }) => {
   const [localChapters, setLocalChapters] = useState(chapters);
   const [editingTopic, setEditingTopic] = useState(null);
   const [editingChapterId, setEditingChapterId] = useState(null);
@@ -176,6 +176,7 @@ export const EbookReader = ({ onBack, chapters = [], initialChapterIndex = 0, on
         totalPages={allTopics.length}
         onMenuClick={(action) => {
           if (action === 'home') onBack();
+          if (action === 'library') onGoLibrary?.();
         }}
       />
 
