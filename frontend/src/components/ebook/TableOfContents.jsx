@@ -45,6 +45,7 @@ export const TableOfContents = ({
           {/* Sheet */}
           <motion.div
             className="fixed inset-y-0 left-0 z-50 w-full max-w-sm bg-background shadow-elevated"
+            data-testid="toc-panel"
             initial={{ x: '-100%' }}
             animate={{ x: 0 }}
             exit={{ x: '-100%' }}
