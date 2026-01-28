@@ -148,6 +148,7 @@ export const TableOfContents = ({
                                 onSelectTopic(chapter.id, topic.id, chapterIdx);
                                 onClose();
                               }}
+                              data-testid={`toc-topic-${topic.id}-button`}
                             >
                               {/* Status Indicator */}
                               <div className={`
@@ -168,10 +169,10 @@ export const TableOfContents = ({
                               
                               {/* Topic Info */}
                               <div className="flex-1 min-w-0">
-                                <h4 className={`text-sm font-medium truncate ${isActive ? 'text-primary' : 'text-foreground'}`}>
+                                <h4 className={`text-sm font-medium truncate ${isActive ? 'text-primary' : 'text-foreground'}`} data-testid={`toc-topic-${topic.id}-title`}>
                                   {topic.title}
                                 </h4>
-                                <p className="text-xs text-muted-foreground truncate">
+                                <p className="text-xs text-muted-foreground truncate" data-testid={`toc-topic-${topic.id}-meta`}>
                                   {topic.hotspots?.length || 0} interactive elements
                                 </p>
                               </div>
