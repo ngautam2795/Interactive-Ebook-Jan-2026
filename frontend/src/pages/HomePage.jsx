@@ -452,11 +452,11 @@ export const HomePage = ({
               to create custom learning experiences.
             </p>
             <div className="flex flex-wrap justify-center gap-4">
-              <Button variant="warm" size="xl" onClick={() => onStartReading(0)} className="gap-2">
+              <Button variant="warm" size="xl" onClick={() => onStartReading(0)} className="gap-2" data-testid="cta-start-demo-button">
                 <Play className="w-5 h-5" />
                 Start Demo
               </Button>
-              <Button variant="outline" size="xl" onClick={onUploadContent} className="gap-2">
+              <Button variant="outline" size="xl" onClick={onUploadContent} className="gap-2" data-testid="cta-create-own-button">
                 <Plus className="w-5 h-5" />
                 Create Your Own
               </Button>
