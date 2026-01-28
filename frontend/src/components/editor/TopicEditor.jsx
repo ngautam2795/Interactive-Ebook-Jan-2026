@@ -366,32 +366,33 @@ export const TopicEditor = ({
   return (
     <motion.div
       className="fixed inset-0 z-50 bg-background"
+      data-testid="topic-editor"
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
     >
       {/* Header */}
-      <div className="flex items-center justify-between p-4 border-b border-border bg-card">
+      <div className="flex items-center justify-between p-4 border-b border-border bg-card" data-testid="topic-editor-header">
         <div className="flex items-center gap-4">
-          <Button variant="ghost" size="icon" onClick={onClose}>
+          <Button variant="ghost" size="icon" onClick={onClose} data-testid="topic-editor-close-button">
             <X className="w-5 h-5" />
           </Button>
           <div>
-            <h1 className="font-display font-bold text-lg text-foreground flex items-center gap-2">
+            <h1 className="font-display font-bold text-lg text-foreground flex items-center gap-2" data-testid="topic-editor-title">
               <Edit3 className="w-5 h-5 text-primary" />
               Edit: {topic.title}
             </h1>
-            <p className="text-sm text-muted-foreground">
+            <p className="text-sm text-muted-foreground" data-testid="topic-editor-summary">
               {hotspots.length} hotspots • {annotations.length} annotations
             </p>
           </div>
         </div>
 
         <div className="flex items-center gap-2">
-          <Button variant="outline" onClick={onClose}>
+          <Button variant="outline" onClick={onClose} data-testid="topic-editor-cancel-button">
             Cancel
           </Button>
-          <Button variant="warm" onClick={handleSaveAll} disabled={isSaving}>
+          <Button variant="warm" onClick={handleSaveAll} disabled={isSaving} data-testid="topic-editor-save-button">
             {isSaving ? (
               <>Saving...</>
             ) : (
