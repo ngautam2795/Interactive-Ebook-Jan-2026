@@ -92,6 +92,24 @@ export const HomePage = ({
     }
   };
 
+  const handleToggleFavorite = async (chapter) => {
+    if (!chapter?.id) return;
+    const nextFavorite = !chapter.favorite;
+    setFavoriteUpdatingId(chapter.id);
+    try {
+      await axios.put(`${BACKEND_URL}/api/chapters/${chapter.id}/favorite`, {
+        favorite: nextFavorite
+      });
+      onToggleFavorite?.(chapter.id, nextFavorite);
+      toast.success(nextFavorite ? 'Added to favorites' : 'Removed from favorites');
+    } catch (error) {
+      console.error('Favorite error:', error);
+      toast.error('Failed to update favorite');
+    } finally {
+      setFavoriteUpdatingId(null);
+    }
+  };
+
   const formatDate = (dateString) => {
     if (!dateString) return '';
     const date = new Date(dateString);
