@@ -581,6 +581,7 @@ Volcanic eruptions can be explosive or effusive. Explosive eruptions blast ash a
                     variant="outline" 
                     onClick={() => setStep(1)}
                     className="flex-1"
+                    data-testid="creator-back-to-content-button"
                   >
                     Back
                   </Button>
@@ -589,6 +590,7 @@ Volcanic eruptions can be explosive or effusive. Explosive eruptions blast ash a
                     onClick={handleGenerateImage}
                     disabled={isGeneratingImage || !imagePrompt}
                     className="flex-1"
+                    data-testid="creator-generate-image-button"
                   >
                     {isGeneratingImage ? (
                       <>
@@ -607,6 +609,7 @@ Volcanic eruptions can be explosive or effusive. Explosive eruptions blast ash a
                       variant="warm"
                       onClick={() => setStep(3)}
                       className="flex-1"
+                      data-testid="creator-continue-to-preview-button"
                     >
                       Continue
                       <ArrowRight className="w-4 h-4 ml-2" />
@@ -620,6 +623,7 @@ Volcanic eruptions can be explosive or effusive. Explosive eruptions blast ash a
                     variant="ghost"
                     onClick={() => setStep(3)}
                     className="w-full text-muted-foreground"
+                    data-testid="creator-skip-image-button"
                   >
                     Skip image generation
                   </Button>
