@@ -44,12 +44,18 @@ export const HomePage = ({
   onRefreshChapters,
   onDeleteChapter,
   onToggleFavorite,
+  initialTab = 'demo',
+  onTabChange,
   isLoading = false
 }) => {
-  const [activeTab, setActiveTab] = useState('demo');
+  const [activeTab, setActiveTab] = useState(initialTab);
   const [deleteConfirm, setDeleteConfirm] = useState(null);
   const [isDeleting, setIsDeleting] = useState(false);
   const [favoriteUpdatingId, setFavoriteUpdatingId] = useState(null);
+
+  useEffect(() => {
+    setActiveTab(initialTab);
+  }, [initialTab]);
 
   const stats = [
     { icon: BookOpen, value: String(sampleChapters.length + savedChapters.length), label: 'Chapters' },
@@ -266,7 +272,15 @@ export const HomePage = ({
       {/* Content Tabs Section */}
       <section className="py-12 bg-muted/30">
         <div className="max-w-6xl mx-auto px-4">
-          <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+          <Tabs 
+            value={activeTab} 
+            onValueChange={(value) => {
+              setActiveTab(value);
+              onTabChange?.(value);
+            }} 
+            className="w-full"
+            data-testid="homepage-tabs"
+          >
             <div className="flex items-center justify-between mb-6">
               <TabsList className="grid w-auto grid-cols-2">
                 <TabsTrigger value="demo" className="gap-2 px-6" data-testid="tab-demo-content">
